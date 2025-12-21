@@ -8,10 +8,11 @@
 int castle1=1,castle2=1,castle3=1,castle4=1;
 
 void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, 
-            int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* dead){
+            int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead){
     wchar_t piece=board[srcRow][srcCol];
     wchar_t* oppteam=(player==1)?Bteam:Wteam;//to check if the team of opposite side
-    
+    int* oppdead=(player==1)?Bdead:Wdead;
+
     if(player==1){
         int flag=1;
         for(int i=0; i<6; i++){//6 different pieces type
@@ -30,30 +31,40 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     int moveCol=destCol-srcCol;
     switch(piece){
         case L'♔':
+            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
+            break;
         case L'♚': // King
-            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
         case L'♕':
+            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
+            break;
         case L'♛': // Queen
-            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
         case L'♖':
+            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
+            break;
         case L'♜': // Rook
-            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
         case L'♗':
+            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
+            break;
         case L'♝': // Bishop
-            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
         case L'♘':
+            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
+            break;
         case L'♞': // Knight
-            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
         case L'♙': // White Pawn
-            wPawn(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            wPawn(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
         case L'♟': // Black Pawn
-            bPawn(srcRow, srcCol, moveRow, moveCol, board, oppteam, dead, &error);
+            bPawn(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
     }
 }
@@ -127,12 +138,12 @@ void bPawn(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board
 void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
 
 }
+void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
+
+}
 void king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
 
 }
 void queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-
-}
-void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
 
 }
