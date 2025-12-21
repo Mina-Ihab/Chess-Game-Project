@@ -210,8 +210,6 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
-            pawnMove(sel_row,sel_col,dest_row,dest_col,board,switching_team, &error);
-            if(error != 0) continue;
 
             //switch the team
             switching_team = 0;
@@ -294,8 +292,6 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
-            pawnMove(sel_row,sel_col,dest_row,dest_col,board,switching_team, &error);
-            if(error != 0) continue;
 
             //switch the team
             switching_team = 1;
