@@ -127,7 +127,10 @@ void start(wchar_t **board) {
 
     int error = 0;
     int save = 0;
-    char input[10];
+    char input[6];//4 inputs + \n +\0
+    wchar_t white_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
+    wchar_t black_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
+    int dead[2][6]={{0,0,0,0,0,0},{0,0,0,0,0,0}};
 
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
