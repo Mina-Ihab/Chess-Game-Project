@@ -30,56 +30,72 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     int moveRow=destRow-srcRow;
     int moveCol=destCol-srcCol;
     switch(piece){
-        case L'♔':
+        case L'♔':// White King
             king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♚': // King
+        case L'♚':// Black King
             king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♕':
+        case L'♕':// White Queen
             queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♛': // Queen
+        case L'♛':// Black Queen
             queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♖':
+        case L'♖':// White Rook
             rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♜': // Rook
+        case L'♜':// Black Rook
             rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♗':
+        case L'♗':// White Bishop
             bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♝': // Bishop
+        case L'♝':// Black Bishop
             bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♘':
+        case L'♘':// White knight
             knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♞': // Knight
+        case L'♞':// Black Knight
             knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♙': // White Pawn
+        case L'♙':// White Pawn
             wPawn(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
-        case L'♟': // Black Pawn
+        case L'♟':// Black Pawn
             bPawn(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, &error);
             break;
     }
 }
-//*didnt make the castle
+
 void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     if(moveRow!=0&&moveCol!=0 || moveRow==0&&moveCol==0){*error = 5; return;}
-    int decision;
-    for(int i=beginCol; i<moveCol-1; i++){
-        if(!(board[beginRow][i]==L'□'&&board[beginRow][i]==L'■')){*error = 5; return;}
-        decision=0;
-    }
-    for(int i=beginRow; i<moveRow-1; i++){
-        if(!(board[i][beginCol]==L'□'&&board[i][beginCol]==L'■')){*error = 5; return;}
-        decision=1;
-    }
+    int decision=2;//imposiiple case
+    if(moveCol>0){
+        for(int i=1; i<moveCol; i++){
+            if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return;}
+            decision=0;
+        }
+    }//go right
+    if(moveRow>0){
+        for(int i=1; i<moveRow; i++){
+            if(!(board[i+beginRow][beginCol]==L'□' || board[i+beginRow][beginCol]==L'■')){*error = 5; return;}
+            decision=1;
+        }
+    }//up
+    if(moveCol<0){
+        for(int i=beginCol-1; i>beginCol+moveCol; i--){
+            if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return;}
+            decision=0;
+        }
+    }//left
+    if(moveRow<0){
+        for(int i=beginRow-1; i>beginRow+moveRow; i--){
+            if(!(board[i][beginCol]==L'□' || board[i][beginCol]==L'■')){*error = 5; return;}
+            decision=1;
+        }
+    }//down
     if(decision==0){
         for(int i=0; i<6; i++){
             if(board[beginRow][beginCol+moveCol]==team[i]){
