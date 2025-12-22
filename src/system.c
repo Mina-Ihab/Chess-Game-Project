@@ -6,6 +6,7 @@
 #include <ctype.h>
 
 #include "../include/board.h"
+#include "../include/move.h"
 
 
 // Make every string in upper case
@@ -128,8 +129,8 @@ void start(wchar_t **board) {
     int error = 0;
     int save = 0;
     char input[6];//4 inputs + \n +\0
-    wchar_t white_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
-    wchar_t black_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
+    wchar_t white_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
+    wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
     int Wdead[6]={0,0,0,0,0,0}, Bdead[6]={0,0,0,0,0,0};
 
     //we can remove the 1 and make it, if the game is not end 
@@ -138,7 +139,7 @@ void start(wchar_t **board) {
         if(switching_team) {
 
             //Clear Terminal before each print
-            clear_terminal();
+            // clear_terminal();
 
             //print the board
             print_board(board);
@@ -213,6 +214,9 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
+            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team, &error, white_team, black_team, Wdead, Bdead);
+
+            if(error != 0) continue;
 
             //switch the team
             switching_team = 0;
@@ -221,7 +225,7 @@ void start(wchar_t **board) {
         else {
             
             //Clear Terminal before each print
-            clear_terminal();
+            // clear_terminal();
 
             //print the board
             print_board(board);
@@ -295,6 +299,9 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
+            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team, &error, white_team, black_team, Wdead, Bdead);
+
+            if(error != 0) continue;
 
             //switch the team
             switching_team = 1;
@@ -313,7 +320,7 @@ void main_menu(wchar_t **board) {
 
     while(1) {
 
-        clear_terminal();
+        // clear_terminal();
 
         wprintf(L"------==MAIN MENU==------\n");
         wprintf(L"\tStart\n");
