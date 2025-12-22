@@ -8,23 +8,22 @@
 int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0;//flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
-
     char piece;
     printf("Choose the piece to pormote into (capital letter for white and samll for black):");
     scanf("%c", &piece);
     if(player==1){
         switch(piece){
-            case 'Q':// Black Queen
-                board[0][col]=L'♛';
+            case 'Q':// white Queen
+                board[7][col]=L'♛';
                 break;
-            case 'R':// Black Rook
-                board[0][col]=L'♜';
+            case 'R':// white Rook
+                board[7][col]=L'♜';
                 break;
-            case 'B':// Black Bishop
-                board[0][col]=L'♝';
+            case 'B':// white Bishop
+                board[7][col]=L'♝';
                 break;
-            case 'N':// Black Knight
-                board[0][col]=L'♞';
+            case 'N':// white Knight
+                board[7][col]=L'♞';
                 break;
             default:
                 *error = 1;
@@ -33,17 +32,17 @@ void pormotion(int player, int* error, wchar_t** board, int col){
     }// White pieces
     if(player==0){
         switch(piece){
-            case 'q':// White Queen
-                board[7][col]=L'♕';
+            case 'q':// black Queen
+                board[0][col]=L'♕';
                 break;
-            case 'r':// White Rook
-                board[7][col]=L'♖';
+            case 'r':// black Rook
+                board[0][col]=L'♖';
                 break;
-            case 'b':// White Bishop
-                board[7][col]=L'♗';
+            case 'b':// black Bishop
+                board[0][col]=L'♗';
                 break;
-            case 'n':// White Knight
-                board[7][col]=L'♘';
+            case 'n':// black Knight
+                board[0][col]=L'♘';
                 break;
             default:
                 *error = 1;
@@ -252,11 +251,72 @@ void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     }
     else{*error = 5; return;}
 }
-void Wking(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-
-}
-void Bking(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-
+void king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error, int player){
+    //castle
+    if(player==1){
+        if(castle1&&moveCol==2&&moveRow==0){
+                for(int i=1; i<moveCol; i++){
+                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return;}
+                }
+            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
+            board[beginRow][beginCol+1]= L'♜';
+            board[beginRow][beginCol]=L'□';
+            board[0][7]=L'■';
+            castle1=0;castle2=0;
+        }
+        if(castle2&&moveCol==-3&&moveRow==0){
+                for(int i=beginCol-1; i>beginCol+moveCol; i--){
+                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return;}
+                }
+            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
+            board[beginRow][beginCol-1]= L'♜';
+            board[beginRow][beginCol]=L'□';
+            board[0][0]=L'□';
+            castle1=0;castle2=0;
+        }
+    }
+    else if(player==0){
+        if(castle3&&moveCol==2&&moveRow==0){
+                for(int i=1; i<moveCol; i++){
+                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return;}
+                }
+            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
+            board[beginRow][beginCol+1]= L'♜';
+            board[beginRow][beginCol]=L'■';
+            board[7][7]=L'■';
+            castle3=0;castle4=0;
+        }
+        if(castle4&&moveCol==-3&&moveRow==0){
+                for(int i=beginCol-1; i>beginCol+moveCol; i--){
+                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return;}
+                }
+            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
+            board[beginRow][beginCol-1]= L'♜';
+            board[beginRow][beginCol]=L'■';
+            board[7][0]=L'□';
+            castle3=0;castle4=0;
+        }
+    }
+    //normal move
+    if(moveCol>1 || moveCol<-1 || moveRow>1 || moveRow<-1 || moveRow&&moveCol){*error = 5; return;}
+    for(int i=1; i<6; i++){
+        if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
+            board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
+            dead[i-1]++;
+            board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            castle1=0;castle2=0;castle3=0;castle4=0;
+            pessant=0;
+            return;
+        }
+    }
+    if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
+        board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
+        board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+        castle1=0;castle2=0;castle3=0;castle4=0;
+        pessant=0;
+        return;
+    }
+    else{*error = 5; return;}
 }
 void queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     int negative1=0,negative2=0;
@@ -269,7 +329,6 @@ void queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board
     if(decision==1)bishop(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);
     else if(decision==2)rook(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);//all errors is handeled here
 }
-
 void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, 
             int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead){
     wchar_t piece=board[srcRow][srcCol];
@@ -293,40 +352,41 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     int moveRow=destRow-srcRow;
     int moveCol=destCol-srcCol;
     switch(piece){
-        case L'♔':// White King
-            Wking(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);//error no need to * or & as it was from caller int* error
+        case L'♚':// White King (inverted)
+            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
+            //error no need to * or & as it was from caller int* error
             break;
-        case L'♚':// Black King
-            Bking(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+        case L'♔':// Black King
+            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
             break;
-        case L'♕':// White Queen
+        case L'♛':// White Queen
             queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♛':// Black Queen
+        case L'♕':// Black Queen
             queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♖':// White Rook
+        case L'♜':// White Rook
             rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♜':// Black Rook
+        case L'♖':// Black Rook
             rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♗':// White Bishop
+        case L'♝':// White Bishop
             bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♝':// Black Bishop
+        case L'♗':// Black Bishop
             bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♘':// White knight
+        case L'♞':// White Knight
             knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♞':// Black Knight
+        case L'♘':// Black Knight
             knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
-        case L'♙':// White Pawn
+        case L'♟':// White Pawn
             pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
             break;
-        case L'♟':// Black Pawn
+        case L'♙':// Black Pawn
             pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
             break;
     }
