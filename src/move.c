@@ -229,7 +229,28 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     else{*error = 5; return;}
 }
 void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-    
+    if(moveCol>2 || moveCol<-2 || moveRow>2 || moveRow<-2 || moveRow==0 || moveCol==0){*error = 5; return;}
+    int negative1=0,negative2=0;
+    if(moveRow<0){moveRow=-moveRow;negative1=1;}
+    if(moveCol<0){moveCol=-moveCol;negative2=1;}//handle negative for compare
+    if(moveCol==2&&moveRow!=1){*error = 5; return;}
+    if(moveCol!=2&&moveRow==1){*error = 5; return;}
+    if(negative1==1)moveRow=-moveRow;
+    if(negative2==1)moveCol=-moveCol;//return negative
+    for(int i=0; i<6; i++){
+        if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
+            board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
+            dead[i]++;
+            board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            return;
+        }
+    }
+    if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
+        board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
+        board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+        return;
+    }
+    else{*error = 5; return;}
 }
 void Wking(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
 
