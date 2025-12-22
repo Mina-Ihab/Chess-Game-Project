@@ -190,8 +190,7 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     if(moveCol<0&&moveRow>0){
         for(int i=1; i<moveRow; i++){
             for(int j=beginCol-1; j>moveCol+beginCol; j--){
-                int test=moveRow;//as it is the positive
-                if(i+j!=test)continue;
+                if(i+j!=beginCol)continue;
                 if(!(board[i+beginRow][j]==L'□' || board[i+beginRow][j]==L'■')){*error = 5; return;}
             }
         }
@@ -199,8 +198,7 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     if(moveCol>0&&moveRow<0){
         for(int i=beginRow-1; i>beginRow+moveRow; i--){
             for(int j=1; j<moveCol; j++){
-                int test=moveCol;//as it is the positive
-                if(i+j!=test)continue;
+                if(i+j!=beginCol+beginRow)continue;
                 if(!(board[i][j+beginCol]==L'□' || board[i][j+beginCol]==L'■')){*error = 5; return;}
             }
         }
@@ -208,7 +206,7 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     if(moveCol<0&&moveRow<0){
         for(int i=beginRow-1; i>beginRow+moveRow; i--){
             for(int j=beginCol-1; j>moveCol+beginCol; j--){
-                if(i!=j)continue;
+                if(i-j!=beginRow-beginCol)continue;
                 if(!(board[i][j]==L'□' || board[i][j]==L'■')){*error = 5; return;}
             }
         }
