@@ -259,7 +259,15 @@ void Bking(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board
 
 }
 void queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-
+    int negative1=0,negative2=0;
+    if(moveRow<0){moveRow=-moveRow;negative1=1;}
+    if(moveCol<0){moveCol=-moveCol;negative2=1;}//handle negative for compare
+    int decision=0; //imposible casse
+    decision=(moveRow==moveCol)?1:2;
+    if(negative1==1)moveRow=-moveRow;
+    if(negative2==1)moveCol=-moveCol;//return negative
+    if(decision==1)bishop(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);
+    else if(decision==2)rook(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);//all errors is handeled here
 }
 
 void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, 
