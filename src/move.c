@@ -5,7 +5,7 @@
 #include "../include/board.h"
 #include "../include/move.h"
 
-int castle1=1,castle2=1,castle3=1,castle4=1;
+int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0;//flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
 
@@ -14,17 +14,17 @@ void pormotion(int player, int* error, wchar_t** board, int col){
     scanf("%c", &piece);
     if(player==1){
         switch(piece){
-            case 'Q':// White Queen
-                board[7][col]=L'♕';
+            case 'Q':// Black Queen
+                board[0][col]=L'♛';
                 break;
-            case 'R':// White Rook
-                board[7][col]=L'♖';
+            case 'R':// Black Rook
+                board[0][col]=L'♜';
                 break;
-            case 'B':// White Bishop
-                board[7][col]=L'♗';
+            case 'B':// Black Bishop
+                board[0][col]=L'♝';
                 break;
-            case 'N':// White Knight
-                board[7][col]=L'♘';
+            case 'N':// Black Knight
+                board[0][col]=L'♞';
                 break;
             default:
                 *error = 1;
@@ -33,25 +33,24 @@ void pormotion(int player, int* error, wchar_t** board, int col){
     }// White pieces
     if(player==0){
         switch(piece){
-            case 'q':// Black Queen
-                board[0][col]=L'♛';
+            case 'q':// White Queen
+                board[7][col]=L'♕';
                 break;
-            case 'r':// Black Rook
-                board[0][col]=L'♜';
+            case 'r':// White Rook
+                board[7][col]=L'♖';
                 break;
-            case 'b':// Black Bishop
-                board[0][col]=L'♝';
+            case 'b':// White Bishop
+                board[7][col]=L'♗';
                 break;
-            case 'n':// Black Knight
-                board[0][col]=L'♞';
+            case 'n':// White Knight
+                board[7][col]=L'♘';
                 break;
             default:
                 *error = 1;
                 break;
-        }
-    }// Black pieces
+        }// Black pieces
+    }
 }
-
 void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     if(moveRow!=0&&moveCol!=0 || moveRow==0&&moveCol==0){*error = 5; return;}
     int decision=2;//imposiple case
@@ -80,15 +79,16 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
         }
     }//down
     if(decision==0){
-        for(int i=0; i<6; i++){
+        for(int i=1; i<6; i++){
             if(board[beginRow][beginCol+moveCol]==team[i]){
                 if(beginRow==0&&beginCol==0) castle1=0;
                 if(beginRow==0&&beginCol==7) castle2=0;
                 if(beginRow==7&&beginCol==0) castle3=0;
                 if(beginRow==7&&beginCol==7) castle4=0;
                 board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-                dead[i]++;
+                dead[i-1]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+                pessant=0;
                 return;
             }
         }
@@ -99,20 +99,22 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             if(beginRow==7&&beginCol==7) castle4=0;
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            pessant=0;
             return;
         }
         else{*error = 5; return;}
     }
     else if(decision==1){
-        for(int i=0; i<6; i++){
+        for(int i=1; i<6; i++){
             if(board[beginRow+moveRow][beginCol]==team[i]){
                 if(beginRow==0&&beginCol==0) castle1=0;
                 if(beginRow==0&&beginCol==7) castle2=0;
                 if(beginRow==7&&beginCol==0) castle3=0;
                 if(beginRow==7&&beginCol==7) castle4=0;
                 board[beginRow+moveRow][beginCol]=board[beginRow][beginCol];
-                dead[i]++;
+                dead[i-1]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+                pessant=0;
                 return;
             }
         }
@@ -123,24 +125,36 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             if(beginRow==7&&beginCol==7) castle4=0;
             board[beginRow+moveRow][beginCol]=board[beginRow][beginCol];
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            pessant=0;
             return;
         }
         else{*error = 5; return;}
     }
 }
 void pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int moveCol, wchar_t** board, wchar_t* oppteam, int* dead, int *error, int player){
-    if(moveCol>1 || moveCol<-1 || moveRow>2 || moveRow<-2 || moveRow==0&&moveCol==0){*error = 5; return;}
+    if(moveCol>1 || moveCol<-1 || moveRow>2 || moveRow<-2 || moveRow==0){*error = 5; return;}
     if(moveRow==-2&&beginRow!=6){*error = 5; return;}
     if(moveRow==2&&beginRow!=1){*error = 5; return;}
     if(player==1&&moveRow<0 || player==0&&moveRow>0){*error = 5; return;}// player 1=white moves +, player 0=black moves -
     if(moveRow==2&&!(board[beginRow+1][beginCol]==L'□' || board[beginRow+1][beginCol]==L'■')){*error = 5; return;}
     if(moveRow==-2&&!(board[beginRow-1][beginCol]==L'□' || board[beginRow-1][beginCol]==L'■')){*error = 5; return;}
+    if(pessant&&moveCol){
+        int target=(player==1)?L'♙': L'♟';//opposite team
+        if(target==board[beginRow][beginCol+moveCol]){
+            board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
+            board[beginRow][beginCol+moveCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            dead[5]++;
+            pessant=0;
+            return;
+        }
+    }
     if (moveCol && (moveRow == 1 || moveRow == -1)){
-        for(int i=0; i<6; i++){
+        for(int i=1; i<6; i++){
             if(board[beginRow+moveRow][beginCol+moveCol]==oppteam[i]){
                 board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
-                dead[i]++;
+                dead[i-1]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+                pessant=0;
                 if(destrow==7 || destrow==0)pormotion(player,error,board,destcol);
                 return;
             }
@@ -150,8 +164,9 @@ void pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int
     if ((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+        pessant=(moveRow==2 || moveRow==-2)?1:0;
         if(destrow==7 || destrow==0)pormotion(player,error,board,destcol);
-    
+        return;
     }
     else{*error = 5; return;}
 }
@@ -194,17 +209,19 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
             }
         }
     }//down left
-    for(int i=0; i<6; i++){
+    for(int i=1; i<6; i++){
         if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
             board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
-            dead[i]++;
+            dead[i-1]++;
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            pessant=0;
             return;
         }
     }
     if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+        pessant=0;
         return;
     }
     else{*error = 5; return;}
@@ -218,17 +235,19 @@ void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     if(moveCol!=2&&moveRow==1){*error = 5; return;}
     if(negative1==1)moveRow=-moveRow;
     if(negative2==1)moveCol=-moveCol;//return negative
-    for(int i=0; i<6; i++){
+    for(int i=1; i<6; i++){
         if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
             board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
-            dead[i]++;
+            dead[i-1]++;
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+            pessant=0;
             return;
         }
     }
     if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
+        pessant=0;
         return;
     }
     else{*error = 5; return;}
