@@ -7,68 +7,6 @@
 
 int castle1=1,castle2=1,castle3=1,castle4=1;
 
-void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, 
-            int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead){
-    wchar_t piece=board[srcRow][srcCol];
-    wchar_t* oppteam=(player==1)?Bteam:Wteam;//to check if the team of opposite side
-    int* oppdead=(player==1)?Bdead:Wdead;
-
-    if(player==1){
-        int flag=1;
-        for(int i=0; i<6; i++){//6 different pieces type
-            if(piece==oppteam[i]){flag=0;break;}
-        }
-        if(flag==0){*error = 4; return;}
-    }
-    else{
-        int flag=1;
-        for(int i=0; i<6; i++){
-            if(piece==oppteam[i]){flag=0;break;}
-        }
-        if(flag==0){*error = 4; return;}
-    }
-    int moveRow=destRow-srcRow;
-    int moveCol=destCol-srcCol;
-    switch(piece){
-        case L'♔':// White King
-            Wking(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);//error no need to * or & as it was from caller int* error
-            break;
-        case L'♚':// Black King
-            Bking(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♕':// White Queen
-            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♛':// Black Queen
-            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♖':// White Rook
-            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♜':// Black Rook
-            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♗':// White Bishop
-            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♝':// Black Bishop
-            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♘':// White knight
-            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♞':// Black Knight
-            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
-            break;
-        case L'♙':// White Pawn
-            pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
-            break;
-        case L'♟':// Black Pawn
-            pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
-            break;
-    }
-}
-
 void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     if(moveRow!=0&&moveCol!=0 || moveRow==0&&moveCol==0){*error = 5; return;}
     int decision=2;//imposiple case
@@ -301,4 +239,67 @@ void pormotion(int player, int* error, wchar_t** board, int col){
                 break;
         }
     }// Black pieces
+}
+
+
+void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, 
+            int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead){
+    wchar_t piece=board[srcRow][srcCol];
+    wchar_t* oppteam=(player==1)?Bteam:Wteam;//to check if the team of opposite side
+    int* oppdead=(player==1)?Bdead:Wdead;
+
+    if(player==1){
+        int flag=1;
+        for(int i=0; i<6; i++){//6 different pieces type
+            if(piece==oppteam[i]){flag=0;break;}
+        }
+        if(flag==0){*error = 4; return;}
+    }
+    else{
+        int flag=1;
+        for(int i=0; i<6; i++){
+            if(piece==oppteam[i]){flag=0;break;}
+        }
+        if(flag==0){*error = 4; return;}
+    }
+    int moveRow=destRow-srcRow;
+    int moveCol=destCol-srcCol;
+    switch(piece){
+        case L'♔':// White King
+            Wking(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);//error no need to * or & as it was from caller int* error
+            break;
+        case L'♚':// Black King
+            Bking(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♕':// White Queen
+            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♛':// Black Queen
+            queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♖':// White Rook
+            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♜':// Black Rook
+            rook(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♗':// White Bishop
+            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♝':// Black Bishop
+            bishop(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♘':// White knight
+            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♞':// Black Knight
+            knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
+            break;
+        case L'♙':// White Pawn
+            pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
+            break;
+        case L'♟':// Black Pawn
+            pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
+            break;
+    }
 }
