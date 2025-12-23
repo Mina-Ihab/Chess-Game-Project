@@ -379,19 +379,19 @@ bool isPlaceattacked(int beginRow, int beginCol,int destrow, int destcol, wchar_
                 if(board[beginRow][beginCol]==oppteam[i]){
                     wchar_t target=board[beginRow][beginCol];
                     if(target == L'♜' || target == L'♖'){
-                        if(rook(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){undo_move(memory_board, board, slot, error);*Maxslot--;return true;}
+                        if(rook(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){*Maxslot--;undo_move(memory_board, board, slot, error, Maxslot, 1);return true;}
                     }
                     else if(target == L'♞' || target == L'♘'){
-                        if(knight(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){undo_move(memory_board, board, slot, error);*Maxslot--;return true;}
+                        if(knight(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){*Maxslot--;undo_move(memory_board, board, slot, error, Maxslot, 1);return true;}
                     }
                     else if(target == L'♝' || target == L'♗'){
-                        if(bishop(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){undo_move(memory_board, board, slot, error);*Maxslot--;return true;}
+                        if(bishop(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){*Maxslot--;undo_move(memory_board, board, slot, error, Maxslot, 1);return true;}
                     }
                     else if(target == L'♚' || target == L'♔'){
-                        if(king(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error, player)){undo_move(memory_board, board, slot, error);*Maxslot--;return true;}
+                        if(king(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error, player)){*Maxslot--;undo_move(memory_board, board, slot, error, Maxslot, 1);return true;}
                     }
                     else if(target == L'♟' || target == L'♙'){
-                        if(pawn(beginRow, beginCol, destrow, destcol, moveRow, moveCol, board, oppteam, oppdead, error, player)){undo_move(memory_board, board, slot, error);*Maxslot--;return true;}
+                        if(pawn(beginRow, beginCol, destrow, destcol, moveRow, moveCol, board, oppteam, oppdead, error, player)){*Maxslot--;undo_move(memory_board, board, slot, error, Maxslot, 1);return true;}
                     }
                 }
             }
