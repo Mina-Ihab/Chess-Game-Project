@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <locale.h>
+#include <stdbool.h>
 
 #include "../include/board.h"
 #include "../include/move.h"
+#include "../include/system.h"
 
-extern int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0; //flags special moves
+extern int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0,check=0; //flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
     char piece;
@@ -50,31 +52,31 @@ void pormotion(int player, int* error, wchar_t** board, int col){
         }// Black pieces
     }
 }
-void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-    if(moveRow!=0&&moveCol!=0 || moveRow==0&&moveCol==0){*error = 5; return;}
+int rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
+    if(moveRow!=0&&moveCol!=0 || moveRow==0&&moveCol==0){*error = 5; return 0;}
     int decision=2;//imposiple case
     if(moveCol>0){
         decision=0;
         for(int i=1; i<moveCol; i++){
-            if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return;}
+            if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return 0;}
         }
     }//go right
     if(moveRow>0){
         decision=1;
         for(int i=1; i<moveRow; i++){
-            if(!(board[i+beginRow][beginCol]==L'□' || board[i+beginRow][beginCol]==L'■')){*error = 5; return;}
+            if(!(board[i+beginRow][beginCol]==L'□' || board[i+beginRow][beginCol]==L'■')){*error = 5; return 0;}
         }
     }//up
     if(moveCol<0){
         decision=0;
         for(int i=beginCol-1; i>beginCol+moveCol; i--){
-            if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return;}
+            if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return 0;}
         }
     }//left
     if(moveRow<0){
         decision=1;
         for(int i=beginRow-1; i>beginRow+moveRow; i--){
-            if(!(board[i][beginCol]==L'□' || board[i][beginCol]==L'■')){*error = 5; return;}     
+            if(!(board[i][beginCol]==L'□' || board[i][beginCol]==L'■')){*error = 5; return 0;}     
         }
     }//down
     if(decision==0){
@@ -88,7 +90,7 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                 dead[i-1]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
                 pessant=0;
-                return;
+                return 1;
             }
         }
         if((board[beginRow][beginCol+moveCol]==L'□' || board[beginRow][beginCol+moveCol]==L'■')){
@@ -99,9 +101,9 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
-            return;
+            return 1;
         }
-        else{*error = 5; return;}
+        else{*error = 5; return 0;}
     }
     else if(decision==1){
         for(int i=1; i<6; i++){
@@ -114,7 +116,7 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                 dead[i-1]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
                 pessant=0;
-                return;
+                return 1;
             }
         }
         if((board[beginRow+moveRow][beginCol]==L'□' || board[beginRow+moveRow][beginCol]==L'■')){
@@ -125,18 +127,18 @@ void rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             board[beginRow+moveRow][beginCol]=board[beginRow][beginCol];
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
-            return;
+            return 1;
         }
-        else{*error = 5; return;}
+        else{*error = 5; return 0;}
     }
 }
-void pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int moveCol, wchar_t** board, wchar_t* oppteam, int* dead, int *error, int player){
-    if(moveCol>1 || moveCol<-1 || moveRow>2 || moveRow<-2 || moveRow==0){*error = 5; return;}
-    if(moveRow==-2&&beginRow!=6){*error = 5; return;}
-    if(moveRow==2&&beginRow!=1){*error = 5; return;}
-    if(player==1&&moveRow<0 || player==0&&moveRow>0){*error = 5; return;}// player 1=white moves +, player 0=black moves -
-    if(moveRow==2&&!(board[beginRow+1][beginCol]==L'□' || board[beginRow+1][beginCol]==L'■')){*error = 5; return;}
-    if(moveRow==-2&&!(board[beginRow-1][beginCol]==L'□' || board[beginRow-1][beginCol]==L'■')){*error = 5; return;}
+int pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int moveCol, wchar_t** board, wchar_t* oppteam, int* dead, int *error, int player){
+    if(moveCol>1 || moveCol<-1 || moveRow>2 || moveRow<-2 || moveRow==0){*error = 5; return 0;}
+    if(moveRow==-2&&beginRow!=6){*error = 5; return 0;}
+    if(moveRow==2&&beginRow!=1){*error = 5; return 0;}
+    if(player==1&&moveRow<0 || player==0&&moveRow>0){*error = 5; return 0;}// player 1=white moves +, player 0=black moves -
+    if(moveRow==2&&!(board[beginRow+1][beginCol]==L'□' || board[beginRow+1][beginCol]==L'■')){*error = 5; return 0;}
+    if(moveRow==-2&&!(board[beginRow-1][beginCol]==L'□' || board[beginRow-1][beginCol]==L'■')){*error = 5; return 0;}
     if(pessant&&moveCol){
         int target=(player==1)?L'♙': L'♟';//opposite team
         if(target==board[beginRow][beginCol+moveCol]){
@@ -144,7 +146,7 @@ void pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int
             board[beginRow][beginCol+moveCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             dead[5]++;
             pessant=0;
-            return;
+            return 0;
         }
     }
     if (moveCol && (moveRow == 1 || moveRow == -1)){
@@ -155,32 +157,32 @@ void pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
                 pessant=0;
                 if(destrow==7 || destrow==0)pormotion(player,error,board,destcol);
-                return;
+                return 1;
             }
         }
-        *error = 5; return;//if didnt return then mean no piece then invalid move
+        *error = 5; return 0;//if didnt return then mean no piece then invalid move
     }    
     if ((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
         pessant=(moveRow==2 || moveRow==-2)?1:0;
         if(destrow==7 || destrow==0)pormotion(player,error,board,destcol);
-        return;
+        return 1;
     }
-    else{*error = 5; return;}
+    else{*error = 5; return 0;}
 }
-void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
+int bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     int negative1=0,negative2=0;
     if(moveRow<0){moveRow=-moveRow;negative1=1;}
     if(moveCol<0){moveCol=-moveCol;negative2=1;}//handle negative for compare
-    if(moveRow!=moveCol || moveRow==0&&moveCol==0){*error = 5; return;}
+    if(moveRow!=moveCol || moveRow==0&&moveCol==0){*error = 5; return 0;}
     if(negative1==1)moveRow=-moveRow;
     if(negative2==1)moveCol=-moveCol;//return negative
     if(moveCol>0&&moveRow>0){
         for(int i=1; i<moveRow; i++){
             for(int j=1; j<moveCol; j++){
                 if(i!=j)continue;
-                if(!(board[i+beginRow][j+beginCol]==L'□' || board[i+beginRow][j+beginCol]==L'■')){*error = 5; return;}
+                if(!(board[i+beginRow][j+beginCol]==L'□' || board[i+beginRow][j+beginCol]==L'■')){*error = 5; return 0;}
             }
         }
     }//go up right
@@ -188,7 +190,7 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
         for(int i=1; i<moveRow; i++){
             for(int j=beginCol-1; j>moveCol+beginCol; j--){
                 if(i+j!=beginCol)continue;
-                if(!(board[i+beginRow][j]==L'□' || board[i+beginRow][j]==L'■')){*error = 5; return;}
+                if(!(board[i+beginRow][j]==L'□' || board[i+beginRow][j]==L'■')){*error = 5; return 0;}
             }
         }
     }//up left
@@ -196,7 +198,7 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
         for(int i=beginRow-1; i>beginRow+moveRow; i--){
             for(int j=1; j<moveCol; j++){
                 if(i+j!=beginCol+beginRow)continue;
-                if(!(board[i][j+beginCol]==L'□' || board[i][j+beginCol]==L'■')){*error = 5; return;}
+                if(!(board[i][j+beginCol]==L'□' || board[i][j+beginCol]==L'■')){*error = 5; return 0;}
             }
         }
     }//down right
@@ -204,7 +206,7 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
         for(int i=beginRow-1; i>beginRow+moveRow; i--){
             for(int j=beginCol-1; j>moveCol+beginCol; j--){
                 if(i-j!=beginRow-beginCol)continue;
-                if(!(board[i][j]==L'□' || board[i][j]==L'■')){*error = 5; return;}
+                if(!(board[i][j]==L'□' || board[i][j]==L'■')){*error = 5; return 0;}
             }
         }
     }//down left
@@ -214,24 +216,24 @@ void bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
             dead[i-1]++;
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
-            return;
+            return 1;
         }
     }
     if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
         pessant=0;
-        return;
+        return 1;
     }
-    else{*error = 5; return;}
+    else{*error = 5; return 0;}
 }
-void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
-    if(moveCol>2 || moveCol<-2 || moveRow>2 || moveRow<-2 || moveRow==0 || moveCol==0){*error = 5; return;}
+int knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
+    if(moveCol>2 || moveCol<-2 || moveRow>2 || moveRow<-2 || moveRow==0 || moveCol==0){*error = 5; return 0;}
     int negative1=0,negative2=0;
     if(moveRow<0){moveRow=-moveRow;negative1=1;}
     if(moveCol<0){moveCol=-moveCol;negative2=1;}//handle negative for compare
-    if(moveCol==2&&moveRow!=1){*error = 5; return;}
-    if(moveCol!=2&&moveRow==1){*error = 5; return;}
+    if(moveCol==2&&moveRow!=1){*error = 5; return 0;}
+    if(moveCol!=2&&moveRow==1){*error = 5; return 0;}
     if(negative1==1)moveRow=-moveRow;
     if(negative2==1)moveCol=-moveCol;//return negative
     for(int i=1; i<6; i++){
@@ -240,34 +242,34 @@ void knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
             dead[i-1]++;
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
-            return;
+            return 1;
         }
     }
     if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
         pessant=0;
-        return;
+        return 1;
     }
-    else{*error = 5; return;}
+    else{*error = 5; return 0;}
 }
-void king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error, int player){
+int king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error, int player){
     //castle
     if(player==1){
         if(castle1&&moveCol==2&&moveRow==0){
                 for(int i=1; i<moveCol; i++){
-                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return;}
+                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return 0;}
                 }
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol+1]= L'♜';
             board[beginRow][beginCol]=L'□';
             board[0][7]=L'■';
             castle1=0;castle2=0;
-            return;
+            return 1;
         }
         if(castle2&&moveCol==-2&&moveRow==0){
                 for(int i=beginCol-1; i>beginCol+moveCol; i--){
-                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return;}
+                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return 0;}
                 }
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol-1]= L'♜';
@@ -280,29 +282,29 @@ void king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
     else if(player==0){
         if(castle3&&moveCol==2&&moveRow==0){
                 for(int i=1; i<moveCol; i++){
-                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return;}
+                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return 0;}
                 }
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol+1]= L'♜';
             board[beginRow][beginCol]=L'■';
             board[7][7]=L'■';
             castle3=0;castle4=0;
-            return;
+            return 1;
         }
         if(castle4&&moveCol==-2&&moveRow==0){
                 for(int i=beginCol-1; i>beginCol+moveCol; i--){
-                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return;}
+                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return 0;}
                 }
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol-1]= L'♜';
             board[beginRow][beginCol]=L'■';
             board[7][0]=L'□';
             castle3=0;castle4=0;
-            return;
+            return 1;
         }
     }
     //normal move
-    if(moveCol>1 || moveCol<-1 || moveRow>1 || moveRow<-1 || moveRow==0&&moveCol==0){*error = 5; return;}
+    if(moveCol>1 || moveCol<-1 || moveRow>1 || moveRow<-1 || moveRow==0&&moveCol==0){*error = 5; return 0;}
     for(int i=1; i<6; i++){
         if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
             if(board[beginRow][beginCol] == L'♚') {castle1=0;castle2=0;}
@@ -311,7 +313,7 @@ void king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             dead[i-1]++;
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
-            return;
+            return 1;
         }
     }
     if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
@@ -320,11 +322,11 @@ void king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
         pessant=0;
-        return;
+        return 1;
     }
-    else{*error = 5; return;}
+    else{*error = 5; return 0;}
 }
-void queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
+int queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     int negative1=0,negative2=0;
     if(moveRow<0){moveRow=-moveRow;negative1=1;}
     if(moveCol<0){moveCol=-moveCol;negative2=1;}//handle negative for compare
@@ -334,9 +336,54 @@ void queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board
     if(negative2==1)moveCol=-moveCol;//return negative
     if(decision==1)bishop(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);
     else if(decision==2)rook(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);//all errors is handeled here
+    else{*error = 5; return 0;}
 }
+void findmyking(wchar_t** board, int player, int* targetRow, int* targetCol){
+    wchar_t target=(player==1)?L'♚':L'♔';
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            if(board[i][j]==target){
+                *targetRow=i;
+                *targetCol=j;
+                return;
+            }
+        }
+    }
+}
+void findtheirking(wchar_t** board, int player, int* targetRow, int* targetCol){
+    wchar_t target=(player==1)?L'♔':L'♚';
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            if(board[i][j]==target){
+                *targetRow=i;
+                *targetCol=j;
+                return;
+            }
+        }
+    }
+}
+bool isPlaceattacked(int beginRow, int beginCol, wchar_t** board, wchar_t* oppteam, int* oppdead, int *error, int player){
+    int destrow, destcol; 
+    int moveRow= destrow-beginRow;
+    int moveCol= destcol-beginCol;
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            for(int i=0; i<6; i++){
+                
+                if(board[beginRow][beginCol]==oppteam[i]){
+                    wchar_t target=board[beginRow][beginCol];
+                    
+                    if (target == L'♜' || target == L'♖'){
+                        if(rook(beginRow, beginCol, moveRow, moveCol, board, oppteam, oppdead, error)){undo_move(memory_board, board, &save_slot, &error);return true;}
+                    }
+                }
+            }
+        }
+    }
+}//*still didnt complete
 void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, 
-            int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead){
+            int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead,
+            wchar_t*** memory_board, int* slot, int* Maxslot){
     wchar_t piece=board[srcRow][srcCol];
     wchar_t* oppteam=(player==1)?Bteam:Wteam;//to check if the team of opposite side
     int* oppdead=(player==1)?Bdead:Wdead;
