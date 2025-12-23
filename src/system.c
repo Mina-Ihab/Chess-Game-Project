@@ -198,17 +198,17 @@ void redo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int max, int
 
 }
 
-void print_dead(wchar_t *pieces, int *dead_arr) {
+void print_dead(wchar_t *b_pieces,wchar_t *w_pieces, int *w_dead_arr, int* b_dead_arr) {
 
     wprintf(L"White eaten: ");
     for(int i = 1; i < 6; i++) {
-        wprintf(L"%lc: %d ", pieces[i], dead_arr[i]);
+        wprintf(L"%lc : %d ", w_pieces[i], w_dead_arr[i]);
     }
     wprintf(L"\n");
 
     wprintf(L"Black eaten: ");
     for(int i = 1; i < 6; i++) {
-        wprintf(L"%lc: %d ", pieces[i], dead_arr[i]);
+        wprintf(L"%lc : %d ", b_pieces[i], b_dead_arr[i]);
     }
     wprintf(L"\n");
 
@@ -233,7 +233,7 @@ void start(wchar_t **board) {
     wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
 
     //we made this colors to be understandable as the white seams white in vscode darkmode
-    int Wdead[5]={0,0,0,0,0}, Bdead[5]={0,0,0,0,0};
+    int Wdead[6]={0,0,0,0,0,0}, Bdead[6]={0,0,0,0,0,0};
 
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
@@ -245,7 +245,7 @@ void start(wchar_t **board) {
 
             //print the board
             print_board(board);
-            print_dead(white_team, Wdead);
+            print_dead(black_team, white_team, Wdead, Bdead);
 
             //if the loop is repeated due to an error
             error = error_check(error);
@@ -290,6 +290,8 @@ void start(wchar_t **board) {
                 input[1] = toupper(input[1]);
                 input[3] = toupper(input[3]);
 
+                wprintf(L"HAMO\n");
+
                 // Check if it is a saving input
                 if(strcmp(input, "SAVE\n") == 0) {
                     save = 1; 
@@ -333,7 +335,7 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
-            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team, &error, white_team, black_team, Wdead, Bdead);
+            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team, &error, white_team, black_team, Wdead, Bdead, memory_board, &save_slot, &max_slot);
 
             if(error != 0) continue;
 
@@ -348,7 +350,7 @@ void start(wchar_t **board) {
 
             //print the board
             print_board(board);
-            print_dead(white_team, Wdead);
+            print_dead(black_team, white_team, Wdead, Bdead);
 
             //if the loop is repeated due an error
             error = error_check(error);
@@ -390,6 +392,8 @@ void start(wchar_t **board) {
             }
             // If it is not a game input
             else {
+
+                wprintf(L"HAMO\n");
                 input[1] = toupper(input[1]);
                 input[3] = toupper(input[3]);
 
@@ -435,7 +439,7 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
-            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team, &error, white_team, black_team, Wdead, Bdead);
+            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team, &error, white_team, black_team, Wdead, Bdead, memory_board, &save_slot, &max_slot);
 
             if(error != 0) continue;
 
