@@ -5,6 +5,5 @@
 
 wchar_t **create_board();
 void print_board(wchar_t **board);
-void remove_board(wchar_t **board);
 
 #endif

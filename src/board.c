@@ -122,10 +122,3 @@ wchar_t **create_board() {
     return board;
 
 }
-
-// Free the board from the memory
-void remove_board(wchar_t **board) {
-
-    free(board);
-
-}
