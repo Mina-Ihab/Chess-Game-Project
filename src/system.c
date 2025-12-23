@@ -8,7 +8,6 @@
 #include "../include/board.h"
 #include "../include/move.h"
 
-
 // Make every string in upper case
 void to_upper(char* string) {
 
@@ -25,6 +24,7 @@ void clear_terminal() {
     #else
         system("clear");
     #endif
+
 }
 
 // Check for any type of errors
@@ -54,7 +54,13 @@ int error_check(int msg_id) {
     else if(msg_id == 7) {
         wprintf(L"ERROR: King in check!\n");
     }
-    
+    else if(msg_id == 8) {
+        wprintf(L"ERROR: There is no more UNDO!\n");
+    }
+    else if(msg_id == 9) {
+        wprintf(L"ERROR: There is no more REDO!\n");
+    }
+
     return 0;
 }
 
@@ -120,18 +126,96 @@ int load_board(wchar_t **board) {
 
 }
 
+// Create a memory to save boards
+wchar_t*** create_board_memory() {
+
+    wchar_t*** board_memory = (wchar_t ***) calloc(500, sizeof(wchar_t**));
+
+    if(board_memory == NULL) {
+        printf("ERROR: There is no free to space create board memory!");
+        exit(0);
+    }
+    for(int i = 0; i < 500; i++) {
+        board_memory[i] = (wchar_t **) calloc(8, sizeof(wchar_t*));
+        if(board_memory[i] == NULL) {
+            printf("ERROR: There is no free to space create board memory!");
+            exit(0);
+        }
+        for(int j = 0; j < 8; j++) {
+            board_memory[i][j] = (wchar_t *) calloc(8, sizeof(wchar_t));
+            if(board_memory[i][j] == NULL) {
+                printf("ERROR: There is no free space to create board memory!");
+                exit(0);
+            }
+        }
+    }
+
+    return board_memory;
+}
+
+// Save the board for UNDO/REDO
+int save_move(wchar_t*** memory_board, wchar_t** board) {
+
+    static int saveSlot = -1;
+    saveSlot++;
+
+    for(int r = 0; r < 8; r++)
+        for(int c = 0; c < 8; c++)
+            memory_board[saveSlot][c][r] = board[r][c];
+
+    
+
+    return saveSlot;
+
+}
+
+// UNDO Move
+void undo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int* error) {
+
+    if(*slot < 1){*error = 8;return;}
+    (*slot)--;
+
+    for(int r = 0; r < 8; r++)
+        for(int c = 0; c < 8; c++)
+            board[r][c] = memory_board[*slot][c][r];
+
+}
+
+// REDO Move
+void redo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int max, int* error) {
+
+    (*slot)++;
+
+    if(*slot > max) {
+        (*slot)--;
+        *error = 9;
+        return;
+    }
+
+    for(int r = 0; r < 8; r++)
+        for(int c = 0; c < 8; c++)
+            board[r][c] = memory_board[*slot][c][r];
+
+}
+
 // Start the game
 void start(wchar_t **board) {
 
     // 1 = White Team
     // 0 = Black Team
     int switching_team = 1;
+    
+    // memory for board to redo/undo
+    wchar_t*** memory_board = create_board_memory();
+    int save_slot = save_move(memory_board, board);
+    int max_slot = save_slot;
 
     int error = 0;
     int save = 0;
     char input[6];//4 inputs + \n +\0
     wchar_t white_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
     wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
+
     //we made this colors to be understandable as the white seams white in vscode darkmode
     int Wdead[5]={0,0,0,0,0}, Bdead[5]={0,0,0,0,0};
 
@@ -193,6 +277,22 @@ void start(wchar_t **board) {
                 if(strcmp(input, "SAVE\n") == 0) {
                     save = 1; 
                     continue;
+                }
+                // UNDO
+                else if(strcmp(input, "UNDO\n") == 0) {
+
+                    undo_move(memory_board, board, &save_slot, &error);
+                    if(error == 0) {switching_team = 0;}
+                    continue;
+
+                }
+                // REDO
+                else if(strcmp(input, "REDO\n") == 0) {
+
+                    redo_move(memory_board, board, &save_slot, max_slot, &error);
+                    if(error == 0) {switching_team = 0;}
+                    continue;
+
                 }
                 // Else this is an error
                 else {
@@ -280,6 +380,22 @@ void start(wchar_t **board) {
                     save = 1; 
                     continue;
                 }
+                // UNDO
+                else if(strcmp(input, "UNDO\n") == 0) {
+
+                    undo_move(memory_board, board, &save_slot, &error);
+                    if(error == 0) {switching_team = 1;}
+                    continue;
+
+                }
+                // REDO
+                else if(strcmp(input, "REDO\n") == 0) {
+
+                    redo_move(memory_board, board, &save_slot, max_slot, &error);
+                    if(error == 0) {switching_team = 1;}
+                    continue;
+
+                }
                 // Else this is an error
                 else {
                     error = 1;
@@ -310,8 +426,12 @@ void start(wchar_t **board) {
 
         }
 
+        save_slot = save_move(memory_board, board);
+        max_slot = save_slot;
+
     }
 
+    
 }
 
 // Main Menu
