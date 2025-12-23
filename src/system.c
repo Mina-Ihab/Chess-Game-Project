@@ -221,8 +221,6 @@ void start(wchar_t **board) {
 
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
-
-        save_slot = max_slot;
         
         if(switching_team) {
 
