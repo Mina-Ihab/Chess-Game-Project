@@ -52,12 +52,9 @@ int error_check(int msg_id) {
         wprintf(L"SYSTEM: Your king is currently in check!\n");
     }
     else if(msg_id == 7) {
-        wprintf(L"ERROR: King in check!\n");
-    }
-    else if(msg_id == 8) {
         wprintf(L"ERROR: There is no more UNDO!\n");
     }
-    else if(msg_id == 9) {
+    else if(msg_id == 8) {
         wprintf(L"ERROR: There is no more REDO!\n");
     }
 
@@ -172,7 +169,7 @@ int save_move(wchar_t*** memory_board, wchar_t** board) {
 // UNDO Move
 void undo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int* error, int* max, int update) {
 
-    if(*slot < 1){*error = 8;return;}
+    if(*slot < 1){*error = 7;return;}
     (*slot)--;
 
     for(int r = 0; r < 8; r++)
@@ -190,7 +187,7 @@ void redo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int max, int
 
     if(*slot > max) {
         (*slot)--;
-        *error = 9;
+        *error = 8;
         return;
     }
 
