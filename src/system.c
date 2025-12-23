@@ -28,33 +28,34 @@ void clear_terminal() {
 }
 
 // Check for any type of errors
-int error_check(int error) {
+int error_check(int msg_id) {
 
     // Invalid Input Error 1
-    if(error == 1) {
+    if(msg_id == 1) {
         wprintf(L"ERROR: Invalid input. Please try again.\n"); 
-        error = 0;
     }
     // Empty Place Error 2
-    else if(error == 2) {
+    else if(msg_id == 2) {
         wprintf(L"ERROR: You selected an empty place. Choose a valid one.\n");
-        error = 0;
     }
     // Save Error 3
-    else if(error == 3) {
+    else if(msg_id == 3) {
         wprintf(L"SYSTEM: You don't have any saved games yet.\n");
-        error = 0;
     }
-    else if(error == 4) {
+    else if(msg_id == 4) {
         wprintf(L"ERROR: This is not your piece.\n");
-        error = 0;
     }
-    else if(error == 5) {
+    else if(msg_id == 5) {
         wprintf(L"ERROR: Invalid movement.\n");
-        error = 0;
     }
-
-    return error;
+    else if(msg_id == 6) {
+        wprintf(L"SYSTEM: Your king is currently in check!\n");
+    }
+    else if(msg_id == 7) {
+        wprintf(L"ERROR: King in check!\n");
+    }
+    
+    return 0;
 }
 
 // Cleaning the buffer.
