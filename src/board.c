@@ -13,15 +13,7 @@ void print_letter() {
     }
     wprintf(L"\n");
 }
-    // Upper and lower board
-
-    /*
-    Corners: ┌ ┐ └ ┘
-    Horizontal: ─
-    Vertical:   │
-    T-Joints: ┬ ┴ ├ ┤
-    Cross:    ┼
-    */
+    // Upper, middle and lower board
 void border(int up) {
 
     if(up == 2) {
