@@ -170,7 +170,7 @@ int save_move(wchar_t*** memory_board, wchar_t** board) {
 }
 
 // UNDO Move
-void undo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int* error) {
+void undo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int* error, int* max, int update) {
 
     if(*slot < 1){*error = 8;return;}
     (*slot)--;
@@ -178,6 +178,8 @@ void undo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int* error) 
     for(int r = 0; r < 8; r++)
         for(int c = 0; c < 8; c++)
             board[r][c] = memory_board[*slot][c][r];
+
+    if(update == 1) *slot = *max;
 
 }
 
@@ -300,7 +302,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &save_slot, &error);
+                    undo_move(memory_board, board, &save_slot, &error, max_slot, 0);
                     if(error == 0) {switching_team = 0;}
                     continue;
 
@@ -405,7 +407,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &save_slot, &error);
+                    undo_move(memory_board, board, &save_slot, &error, max_slot, 0);
                     if(error == 0) {switching_team = 1;}
                     continue;
 
