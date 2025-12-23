@@ -5,7 +5,7 @@
 #include "../include/board.h"
 #include "../include/move.h"
 
-int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0;//flags special moves
+extern int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0; //flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
     char piece;
