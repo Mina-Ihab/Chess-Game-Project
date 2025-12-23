@@ -14,19 +14,42 @@ void print_letter() {
     wprintf(L"\n");
 }
     // Upper and lower board
+
+    /*
+    Corners: ┌ ┐ └ ┘
+    Horizontal: ─
+    Vertical:   │
+    T-Joints: ┬ ┴ ├ ┤
+    Cross:    ┼
+    */
 void border(int up) {
 
-    if(up) {
+    if(up == 2) {
         wprintf(L"  ┌");
-            for(int i = 0; i < 31; i++)
+        for(int i = 0; i < 7; i++){
+            for(int i = 0; i < 3; i++)
                 wprintf(L"─");
-        wprintf(L"┐\n");
+            wprintf(L"┬");
+        }
+        wprintf(L"───┐\n");
+    }
+    else if (up == 1){
+        wprintf(L"  ├");
+        for(int i = 0; i < 7; i++){
+            for(int i = 0; i < 3; i++)
+                wprintf(L"─");
+            wprintf(L"┼");
+        }
+        wprintf(L"───┤\n");
     }
     else {
         wprintf(L"  └");
-        for(int i = 0; i < 31; i++)
-            wprintf(L"─");
-        wprintf(L"┘\n");
+        for(int i = 0; i < 7; i++){
+            for(int i = 0; i < 3; i++)
+                wprintf(L"─");
+            wprintf(L"┴");
+        }
+        wprintf(L"───┘\n");
     }
 
 }
@@ -82,7 +105,7 @@ void init_board(wchar_t **board) {
 void print_board(wchar_t **board) {
 
     print_letter();
-    border(1);
+    border(2);
 
     for(int row = 0; row < 8; row++) {
             wprintf(L"%d │", row+1);
@@ -90,6 +113,7 @@ void print_board(wchar_t **board) {
             wprintf(L" %lc │", board[row][col]);
         }
         wprintf(L"\n");
+        if(row != 7) border(1);
     }
 
     border(0);
