@@ -2,18 +2,21 @@
 #include <wchar.h>
 #include <locale.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #include "../include/board.h"
 #include "../include/move.h"
 #include "../include/system.h"
 
-extern int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0,check=0; //flags special moves
+int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0,check=0; //flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
-    char piece;
-    printf("Choose the piece to pormote into (capital letter for white and samll for black):");
-    scanf("%c", &piece);
+    char piece_s[3], piece;
+    wprintf(L"Choose the piece to pormote into:");
+    fgets(piece_s, sizeof(piece_s), stdin);
+    sscanf(piece_s, "%c", &piece);
     if(player==1){
+        piece = toupper(piece);
         switch(piece){
             case 'Q':// white Queen
                 board[7][col]=L'♛';
@@ -33,6 +36,7 @@ void pormotion(int player, int* error, wchar_t** board, int col){
         }
     }// White pieces
     if(player==0){
+        piece = tolower(piece);
         switch(piece){
             case 'q':// black Queen
                 board[0][col]=L'♕';
@@ -162,11 +166,15 @@ int pawn(int beginRow, int beginCol, int destrow, int destcol, int moveRow, int 
         }
         *error = 5; return 0;//if didnt return then mean no piece then invalid move
     }    
-    if ((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
+    if ((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■') && moveCol == 0){
+        if(destrow==7 || destrow==0){
+            pormotion(player,error,board,destcol);
+            if(*error == 0) {board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';return 1;}
+        }
+        if(*error != 0) {return 1;}
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
         pessant=(moveRow==2 || moveRow==-2)?1:0;
-        if(destrow==7 || destrow==0)pormotion(player,error,board,destcol);
         return 1;
     }
     else{*error = 5; return 0;}
@@ -276,7 +284,7 @@ int king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, 
             board[beginRow][beginCol]=L'□';
             board[0][0]=L'□';
             castle1=0;castle2=0;
-            return;
+            return 1;
         }
     }
     else if(player==0){
