@@ -56,7 +56,7 @@ void init_board(wchar_t **board) {
                 else if(col == 1 || col == 6)
                     board[row][col] = L'♘';
                 else if(col == 2 || col == 5)
-                    board[row][col] = L'♙';
+                    board[row][col] = L'♗';
                 else if (col == 3)
                     board[row][col] = L'♕';
                 else
