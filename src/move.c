@@ -521,7 +521,7 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
             break;
     }
     wchar_t* myteam=(player==1)?Wteam:Bteam;//to use it in checkmate
-    if(hasCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)){*error=6;return;}
+    if(hasCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
     if(canMove(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==1&&giveCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==1){
         wprintf("Check!\n");
         return;
@@ -530,7 +530,7 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
         wprintf("Checkmate!\n");
         wprintf("You win!\n");
         dealloction(board,memory_board);
-        exit(1);
+        exit(1);//to end game
     }
     if(canMove(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==0&&giveCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==0){
         wprintf("Stalemate!\n");
