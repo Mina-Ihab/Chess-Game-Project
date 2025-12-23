@@ -198,6 +198,22 @@ void redo_move(wchar_t*** memory_board, wchar_t** board, int* slot, int max, int
 
 }
 
+void print_dead(wchar_t *pieces, int *dead_arr) {
+
+    wprintf(L"White eaten: ");
+    for(int i = 1; i < 6; i++) {
+        wprintf(L"%lc: %d ", pieces[i], dead_arr[i]);
+    }
+    wprintf(L"\n");
+
+    wprintf(L"Black eaten: ");
+    for(int i = 1; i < 6; i++) {
+        wprintf(L"%lc: %d ", pieces[i], dead_arr[i]);
+    }
+    wprintf(L"\n");
+
+}
+
 // Start the game
 void start(wchar_t **board) {
 
@@ -229,6 +245,7 @@ void start(wchar_t **board) {
 
             //print the board
             print_board(board);
+            print_dead(white_team, Wdead);
 
             //if the loop is repeated due to an error
             error = error_check(error);
@@ -331,6 +348,7 @@ void start(wchar_t **board) {
 
             //print the board
             print_board(board);
+            print_dead(white_team, Wdead);
 
             //if the loop is repeated due an error
             error = error_check(error);
