@@ -222,6 +222,8 @@ void start(wchar_t **board) {
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
 
+        save_slot = max_slot;
+        
         if(switching_team) {
 
             //Clear Terminal before each print
@@ -430,8 +432,9 @@ void start(wchar_t **board) {
         max_slot = save_slot;
 
     }
-
     
+    free(memory_board);
+    free(board);
 }
 
 // Main Menu
