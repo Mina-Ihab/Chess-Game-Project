@@ -166,6 +166,7 @@ int save_move(wchar_t*** memory_board, wchar_t** board) {
 // UNDO Move
 void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int update, int* setting_array) {
 
+    wprintf(L"%d\n", saveSlot);
     if(saveSlot < 1){*error = 7;return;}
     saveSlot--;
 
@@ -342,7 +343,7 @@ void start(wchar_t **board) {
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, &saveSlot, setting_array);
+                     &max_slot, saveSlot, setting_array);
 
             if(error != 0) {
                 if(error==6){save_move(memory_board, board);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
@@ -450,7 +451,7 @@ void start(wchar_t **board) {
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot,&saveSlot, setting_array);
+                     &max_slot, saveSlot, setting_array);
 
             if(error != 0) {
                 if(error==6){save_move(memory_board, board);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
