@@ -422,6 +422,7 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
     return false;
 }
 bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int* saveSlot, int* castle_change, int *setting_array){
+    int saveError = *error;
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){//to get begining of piece
             int beginrow=i;
@@ -459,7 +460,7 @@ bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int *error, int play
             }
         }
     }
-    *error=0;
+    *error=saveError;
     return false;
 }
 void dealloction(wchar_t** twoDim, wchar_t*** threeDim){//the memory and board and they are fixed size no need to dermine dimension
@@ -546,20 +547,20 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     wchar_t* myteam=(player==1)?Wteam:Bteam;//to use on winning conditions
     int* mydead=(player==1)?Wdead:Bdead;
     if(isPlaceattacked(board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)){*error=6;return;}//to check if done invalid move by move piece and his king in check
-    if(canMove(board, myteam, mydead, error, !player, memory_board, Maxslot, slot, castle_change, setting_array)==1&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)==1){
+    if(canMove(board, myteam, mydead, error, !player, memory_board, Maxslot, slot, castle_change, setting_array) && isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)){
         wprintf(L"Check!\n");
         return;
     }
-    if(canMove(board, myteam, mydead, error, !player, memory_board, Maxslot, slot, castle_change, setting_array)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)==1){
-        wprintf(L"Checkmate!\n");
-        wprintf(L"You win!\n");
-        dealloction(board,memory_board);
-        exit(1);//to end game
-    }
-    if(canMove(board, myteam, mydead, error, !player, memory_board, Maxslot, slot, castle_change, setting_array)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)==0){
-        wprintf(L"Stalemate!\n");
-        wprintf(L"It's Draw!\n");
-        dealloction(board,memory_board);
-        exit(1);
-    }
+    // if(canMove(board, myteam, mydead, error, !player, memory_board, Maxslot, slot, castle_change, setting_array)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)==1){
+    //     wprintf(L"Checkmate!\n");
+    //     wprintf(L"You win!\n");
+    //     dealloction(board,memory_board);
+    //     exit(1);//to end game
+    // }
+    // if(canMove(board, myteam, mydead, error, !player, memory_board, Maxslot, slot, castle_change, setting_array)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, castle_change, setting_array)==0){
+    //     wprintf(L"Stalemate!\n");
+    //     wprintf(L"It's Draw!\n");
+    //     dealloction(board,memory_board);
+    //     exit(1);
+    // }
 }
