@@ -452,7 +452,10 @@ void start(wchar_t **board) {
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
                      &max_slot, setting_array);
 
-            if(error != 0) continue;
+            if(error != 0) {
+                if(error==6){max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
+                continue;
+            }
 
             //switch the team
             switching_team = 1;
