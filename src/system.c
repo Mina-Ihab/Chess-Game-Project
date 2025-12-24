@@ -164,7 +164,7 @@ int save_move(wchar_t*** memory_board, wchar_t** board) {
 }
 
 // UNDO Move
-void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int update, int* setting_arry) {
+void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int update, int* setting_array) {
 
     if(saveSlot < 1){*error = 7;return;}
     saveSlot--;
@@ -175,12 +175,12 @@ void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, i
 
     if(update == 1) saveSlot = *max;
 
-    if(saveSlot == setting_arry[1]-1) {castle1 = 1; castle_change[1]--;}
-    if(saveSlot == setting_arry[2]-1) {castle2 = 1; castle_change[2]--;}
-    if(saveSlot == setting_arry[3]-1) {castle3 = 1; castle_change[3]--;}
-    if(saveSlot == setting_arry[4]-1) {castle4 = 1; castle_change[4]--;}
+    if(saveSlot == setting_array[1]-1) {castle1 = 1; castle_change[1]--;}
+    if(saveSlot == setting_array[2]-1) {castle2 = 1; castle_change[2]--;}
+    if(saveSlot == setting_array[3]-1) {castle3 = 1; castle_change[3]--;}
+    if(saveSlot == setting_array[4]-1) {castle4 = 1; castle_change[4]--;}
 
-    wprintf(L"%d: %d %d %d %d\n", saveSlot, setting_arry[1], setting_arry[2], setting_arry[3], setting_arry[4]);
+    wprintf(L"%d: %d %d %d %d\n", saveSlot, setting_array[1], setting_array[2], setting_array[3], setting_array[4]);
 
 }
 
@@ -229,7 +229,7 @@ void start(wchar_t **board) {
     save_move(memory_board, board);
     int max_slot = saveSlot;
 
-    int setting_arry[5] = {0,0,0,0,0};
+    int setting_array[5] = {0,0,0,0,0};
 
     int error = 0;
     int save = 0;
@@ -305,7 +305,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &error, &max_slot, 0, setting_arry);
+                    undo_move(memory_board, board, &error, &max_slot, 0, setting_array);
                     if(error == 0) {switching_team = 0;}
                     continue;
 
@@ -342,9 +342,12 @@ void start(wchar_t **board) {
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, setting_arry);
+                     &max_slot, setting_array);
 
-            if(error != 0) continue;
+            if(error != 0) {
+                if(error==6){max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
+                continue;
+            }
 
             //switch the team
             switching_team = 0;
@@ -411,7 +414,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &error, &max_slot, 0, setting_arry);
+                    undo_move(memory_board, board, &error, &max_slot, 0, setting_array);
                     if(error == 0) {switching_team = 1;}
                     continue;
 
@@ -447,7 +450,7 @@ void start(wchar_t **board) {
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, setting_arry);
+                     &max_slot, setting_array);
 
             if(error != 0) continue;
 
