@@ -345,7 +345,7 @@ void start(wchar_t **board) {
                      &max_slot, setting_array);
 
             if(error != 0) {
-                if(error==6){max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
+                if(error==6){save_move(memory_board, board);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
                 continue;
             }
 
@@ -453,7 +453,7 @@ void start(wchar_t **board) {
                      &max_slot, setting_array);
 
             if(error != 0) {
-                if(error==6){max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
+                if(error==6){save_move(memory_board, board);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
                 continue;
             }
 
