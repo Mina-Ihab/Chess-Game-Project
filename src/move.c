@@ -421,7 +421,7 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
     *error=saveError;//to reset error from theoritical moves
     return false;
 }
-bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int* saveSlot, int* castle_change, int *setting_array){
+bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int saveSlot, int* castle_change, int *setting_array){
     int saveError = *error;
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){//to get begining of piece
@@ -436,23 +436,24 @@ bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int *error, int play
                             int destcol=y;
                             int moveRow= destrow-beginrow;
                             int moveCol= destcol-begincol;
+                            wprintf(L"%d\n", saveSlot);
                             if(target == L'♜' || target == L'♖'){
-                                if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = *saveSlot;*Maxslot--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
+                                if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
                             }
                             else if(target == L'♞' || target == L'♘'){
-                                if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = *saveSlot;*Maxslot--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
+                                if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
                             }
                             else if(target == L'♝' || target == L'♗'){
-                                if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = *saveSlot;*Maxslot--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
+                                if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
                             }
                             else if(target == L'♚' || target == L'♔'){
-                                if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player, castle_change, setting_array)){save_move(memory_board, board);*Maxslot = *saveSlot;*Maxslot--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
+                                if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player, castle_change, setting_array)){save_move(memory_board, board);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
                             }
                             else if(target == L'♛' || target == L'♕'){
-                                if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = *saveSlot;*Maxslot--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;*error=0;return true;}
+                                if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;*error=0;return true;}
                             }
                             else if(target == L'♟' || target == L'♙'){
-                                if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){save_move(memory_board, board);*Maxslot = *saveSlot;*Maxslot--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
+                                if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){save_move(memory_board, board);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, 1, setting_array);*error=0;return true;}
                             }
                         }
                     }
@@ -476,7 +477,7 @@ void dealloction(wchar_t** twoDim, wchar_t*** threeDim){//the memory and board a
     }
     free(twoDim);
 }
-void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot, int* slot, int* setting_array){
+void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot, int slot, int* setting_array){
     wchar_t piece=board[srcRow][srcCol];
     wchar_t* oppteam=(player==1)?Bteam:Wteam;//to check if the team of opposite side
     int* oppdead=(player==1)?Bdead:Wdead;
