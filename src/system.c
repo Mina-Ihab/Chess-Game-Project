@@ -289,8 +289,6 @@ void start(wchar_t **board) {
                 input[1] = toupper(input[1]);
                 input[3] = toupper(input[3]);
 
-                wprintf(L"HAMO\n");
-
                 // Check if it is a saving input
                 if(strcmp(input, "SAVE\n") == 0) {
                     save = 1; 
@@ -299,7 +297,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &save_slot, &error, max_slot, 0);
+                    undo_move(memory_board, board, &save_slot, &error, &max_slot, 0);
                     if(error == 0) {switching_team = 0;}
                     continue;
 
@@ -392,7 +390,6 @@ void start(wchar_t **board) {
             // If it is not a game input
             else {
 
-                wprintf(L"HAMO\n");
                 input[1] = toupper(input[1]);
                 input[3] = toupper(input[3]);
 
@@ -404,7 +401,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &save_slot, &error, max_slot, 0);
+                    undo_move(memory_board, board, &save_slot, &error, &max_slot, 0);
                     if(error == 0) {switching_team = 1;}
                     continue;
 
