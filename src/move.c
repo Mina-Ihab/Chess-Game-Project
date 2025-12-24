@@ -13,6 +13,7 @@ int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0; //flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
     char piece_s[3], piece;
+    int error_flag = 0;
     do {
         wprintf(L"Choose the piece to pormote into:");
         fgets(piece_s, sizeof(piece_s), stdin);
@@ -22,18 +23,22 @@ void pormotion(int player, int* error, wchar_t** board, int col){
             switch(piece){
                 case 'Q':// white Queen
                     board[7][col]=L'♛';
+                    error_flag = 1;
                     break;
                 case 'R':// white Rook
                     board[7][col]=L'♜';
+                    error_flag = 1;
                     break;
                 case 'B':// white Bishop
                     board[7][col]=L'♝';
+                    error_flag = 1;
                     break;
                 case 'N':// white Knight
                     board[7][col]=L'♞';
+                    error_flag = 1;
                     break;
                 default:
-                    *error = 1;
+                    error_flag = 0;
                     break;
             }
         }// White pieces
@@ -42,23 +47,26 @@ void pormotion(int player, int* error, wchar_t** board, int col){
             switch(piece){
                 case 'q':// black Queen
                     board[0][col]=L'♕';
+                    error_flag = 1;
                     break;
                 case 'r':// black Rook
                     board[0][col]=L'♖';
+                    error_flag = 1;
                     break;
                 case 'b':// black Bishop
                     board[0][col]=L'♗';
+                    error_flag = 1;
                     break;
                 case 'n':// black Knight
                     board[0][col]=L'♘';
+                    error_flag = 1;
                     break;
                 default:
-                    *error = 1;
+                    error_flag = 0;
                     break;
             }// Black pieces
         }
-    }while(*error!=0);
-    *error=0;return;
+    }while(error_flag!=1);
 }
 bool rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error){
     if(moveRow!=0&&moveCol!=0 || moveRow==0&&moveCol==0){*error = 5; return false;}
@@ -342,8 +350,14 @@ bool queen(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board
     decision=(moveRow==moveCol)?1:2;
     if(negative1==1)moveRow=-moveRow;
     if(negative2==1)moveCol=-moveCol;//return negative
-    if(decision==1){bishop(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);return true;}
-    else if(decision==2){rook(beginRow, beginCol, moveRow, moveCol, board, team, dead, error);return true;}
+    if(decision==1){
+        if(bishop(beginRow, beginCol, moveRow, moveCol, board, team, dead, error)) return true;
+        return false;
+    }
+    else if(decision==2){
+        if(rook(beginRow, beginCol, moveRow, moveCol, board, team, dead, error)) return true;
+        return false;
+    }
     else{*error = 5; return false;}//all errors is handeled above but for more check
 }
 void findmyking(wchar_t** board, int player, int* targetRow, int* targetCol){
@@ -375,7 +389,7 @@ bool isPlaceattacked(int destrow, int destcol, wchar_t** board, wchar_t* oppteam
         for(int j=0; j<8; j++){
             int moveRow= destrow-i;
             int moveCol= destcol-j;
-            for(int k=0; i<6; i++){
+            for(int k=0; k<6; k++){
                 if(board[i][j]==oppteam[k]){
                     wchar_t target=board[i][j];
                     if(target == L'♜' || target == L'♖'){
@@ -522,18 +536,18 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     }
     if(hasCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
     if(canMove(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==1&&giveCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==1){
-        wprintf("Check!\n");
+        wprintf(L"Check!\n");
         return;
     }
     if(canMove(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==0&&giveCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==1){
-        wprintf("Checkmate!\n");
-        wprintf("You win!\n");
+        wprintf(L"Checkmate!\n");
+        wprintf(L"You win!\n");
         dealloction(board,memory_board);
         exit(1);//to end game
     }
     if(canMove(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==0&&giveCheck(board, oppteam, oppdead, error, player, memory_board, slot, Maxslot)==0){
-        wprintf("Stalemate!\n");
-        wprintf("It's Draw!\n");
+        wprintf(L"Stalemate!\n");
+        wprintf(L"It's Draw!\n");
         dealloction(board,memory_board);
         exit(1);
     }
