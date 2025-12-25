@@ -389,6 +389,7 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
                 if(board[i][j]==oppteam[k]){
                     wchar_t target=board[i][j];
                     if(target == L'♜' || target == L'♖'){
+                        wprintf(L"%d %d %d %d\n", beginrow, begincol, moveRow, moveCol);
                         if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){*error=0;return true;}
                     }
                     else if(target == L'♞' || target == L'♘'){
@@ -428,7 +429,6 @@ bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int* Wdead, int* Bde
                             int destcol=y;
                             int moveRow= destrow-beginrow;
                             int moveCol= destcol-begincol;
-                            wprintf(L"%d\n", saveSlot);
                             if(target == L'♜' || target == L'♖'){
                                 if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
                             }
@@ -458,12 +458,13 @@ bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int* Wdead, int* Bde
 }
 void dealloction(wchar_t** twoDim, wchar_t*** threeDim){//the memory and board and they are fixed size no need to dermine dimension
     for(int i=0; i<500; i++){
-        for(int j=0; j<8; j++){
-            free(threeDim[i][j]);
+        for(int r=0; r<11; r++){
+            free(threeDim[i][r]);
         }
         free(threeDim[i]);
     }
     free(threeDim);
+
     for(int i=0; i<8; i++){
         free(twoDim[i]);
     }

@@ -8,7 +8,14 @@
 #include "../include/board.h"
 #include "../include/move.h"
 
+
 int saveSlot = -1;
+
+// 1 = White Team
+// 0 = Black Team
+int team = 1;
+
+int Wdead[6]={0,0,0,0,0,0}, Bdead[6]={0,0,0,0,0,0};
 
 // Make every string in upper case
 void to_upper(char* string) {
@@ -84,17 +91,36 @@ void cleaning_buffer(char* string) {
 void save_board(wchar_t **board) {
 
     // open the file
-    FILE *f = fopen("./bin/save.txt", "w");
-    
+    FILE *saveBoardFile = fopen("./bin/save.txt", "w");
+    FILE *saveDataFile = fopen("./bin/saveData.txt", "w");
+
+    char data[18];
+
+    data[0] = team + '0';
+    data[1] = castle1 + '0';
+    data[2] = castle2 + '0';
+    data[3] = castle3 + '0';
+    data[4] = castle4 + '0';
+    data[5] = pessant + '0';
+
+    for(int i = 0; i < 6; i++)
+        data[i+6] = Wdead[i] + '0'; // 6 7 8 9 10 11
+
+    for(int i = 0; i < 6; i++)
+        data[i+12] = Bdead[i] + '0'; // 12 13 14 15 16 17
+
     for(int i = 0; i < 8; i++) {
 
         // write row by row each element of size wchar_t and they are 8 element
-        fwrite(board[i], sizeof(wchar_t), 8, f);
+        fwrite(board[i], sizeof(wchar_t), 8, saveBoardFile);
 
     }
 
+    fwrite(data, sizeof(char), 18, saveDataFile);
+
     // close the file
-    fclose(f);
+    fclose(saveBoardFile);
+    fclose(saveDataFile);
 
 }
 
@@ -102,10 +128,13 @@ void save_board(wchar_t **board) {
 int load_board(wchar_t **board) {
 
     // open the file
-    FILE *f = fopen("./bin/save.txt", "r");
+    FILE *saveBoardFile = fopen("./bin/save.txt", "r");
+    FILE *saveDataFile = fopen("./bin/saveData.txt", "r");
+
+    char data[18];
 
     // if there is no file
-    if(f == NULL) {
+    if(saveBoardFile == NULL) {
         // it will return 3 to the error variable which will make the loop continue and send error.
         return 3;
     }
@@ -113,12 +142,28 @@ int load_board(wchar_t **board) {
     for(int i = 0; i < 8; i++) {
 
         // read row by row each element of size wchar_t and they are 8 element
-        fread(board[i], sizeof(wchar_t), 8, f);
+        fread(board[i], sizeof(wchar_t), 8, saveBoardFile);
 
     }
 
+    fread(data, sizeof(char), 18, saveDataFile);
+
+    team = data[0] - '0';
+    castle1 = data[1] - '0';
+    castle2 = data[2] - '0';
+    castle3 = data[3] - '0';
+    castle4 = data[4] - '0';
+    pessant = data[5] - '0';
+
+    for(int i = 0; i < 6; i++)
+        Wdead[i] = data[i+6] - '0'; // 6 7 8 9 10 11
+
+    for(int i = 0; i < 6; i++)
+        Bdead[i] = data[i+12] - '0';
+
     // close the file
-    fclose(f);
+    fclose(saveBoardFile);
+    fclose(saveDataFile);
 
     //it will return 0 to error variable which will break the loop and start
     return 0;
@@ -262,36 +307,46 @@ void print_dead(wchar_t *b_pieces,wchar_t *w_pieces, int *w_dead_arr, int* b_dea
 
 }
 
+// to check the decision
+int decision_check(int decision, wchar_t ** board) {
+
+    if(decision == 1) {
+        wprintf(L"SYSTEM: Game saved successfully!\n");
+        save_board(board);
+    }
+    else if (decision == 2) {
+        wprintf(L"---==CMD==---\n");
+        wprintf(L"Undo - to go the previous move.\n");
+        wprintf(L"Redo - to go the next move (if available).\n");
+        wprintf(L"Save - to save your current game and data.\n");
+        wprintf(L"Quit - to leave from the game.\n");
+        wprintf(L"---=======---\n");
+    }
+
+    return 0;
+}
+
 // Start the game
 void start(wchar_t **board) {
-
-    // 1 = White Team
-    // 0 = Black Team
-    int switching_team = 1;
     
     // memory for board to redo/undo
     wchar_t*** memory_board = create_board_memory();
-    int setting_array[5] = {0,0,0,0,0};
 
     int error = 0;
-    int save = 0;
+    int decision = 0;
     char input[6];//4 inputs + \n +\0
-    wchar_t white_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
-    wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
 
     //we made this colors to be understandable as the white seams white in vscode darkmode
-    int Wdead[6]={0,0,0,0,0,0}, Bdead[6]={0,0,0,0,0,0};
+    wchar_t white_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
+    wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
 
     save_move(memory_board, board, Wdead, Bdead);
     int max_slot = saveSlot;
 
-
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
-
-        wprintf(L"%d %d %d %d %d\n", saveSlot, castle1, castle2, castle3, castle4);
         
-        if(switching_team) {
+        if(team) {
 
             //Clear Terminal before each print
             // clear_terminal();
@@ -304,14 +359,10 @@ void start(wchar_t **board) {
             error = error_check(error);
             
             //if the loop is repeated due to save
-            if(save) {
-                wprintf(L"SYSTEM: Game saved successfully!\n");
-                save_board(board);
-                save = 0;
-            }
+            decision = decision_check(decision, board);
 
             // take inpute
-            wprintf(L"White Turn:\n--> ");
+            wprintf(L"White's turn (format: B1C3, type 'cmd' for commands):\n--> ");
             fgets(input, sizeof(input), stdin);
 
             //Cleaning Buffer
@@ -344,15 +395,19 @@ void start(wchar_t **board) {
                 input[3] = toupper(input[3]);
 
                 // Check if it is a saving input
-                if(strcmp(input, "SAVE\n") == 0) {
-                    save = 1; 
+                if(strcmp(input, "CMD\n") == 0) {
+                    decision = 2;
+                    continue;
+                }
+                else if(strcmp(input, "SAVE\n") == 0) {
+                    decision = 1; 
                     continue;
                 }
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
                     undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 0);
-                    if(error == 0) {switching_team = 0;}
+                    if(error == 0) {team = 0;}
                     continue;
 
                 }
@@ -360,8 +415,16 @@ void start(wchar_t **board) {
                 else if(strcmp(input, "REDO\n") == 0) {
 
                     redo_move(memory_board, board, max_slot, &error, Wdead, Bdead);
-                    if(error == 0) {switching_team = 0;}
+                    if(error == 0) {team = 0;}
                     continue;
+
+                }
+                // QUIT from the game
+                else if(strcmp(input, "QUIT\n") == 0) {
+
+                    dealloction(board, memory_board);
+                    wprintf(L"Exiting...\n");
+                    exit(0);
 
                 }
                 // Else this is an error
@@ -386,7 +449,7 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
-            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
+            movement(sel_row, sel_col, dest_row, dest_col, board, team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
                      &max_slot, saveSlot);
 
@@ -396,7 +459,7 @@ void start(wchar_t **board) {
             }
 
             //switch the team
-            switching_team = 0;
+            team = 0;
 
         }
         else {
@@ -412,14 +475,10 @@ void start(wchar_t **board) {
             error = error_check(error);
 
             //if the loop is repeated due to save
-            if(save) {
-                wprintf(L"SYSTEM: Game saved successfully!\n");
-                save_board(board);
-                save = 0;
-            }
+            decision = decision_check(decision, board);
 
             // take inpute
-            wprintf(L"Black Turn:\n--> ");
+            wprintf(L"Black's turn (format: B1C3, type 'cmd' for commands):\n--> ");
             fgets(input, sizeof(input), stdin);
 
             //Cleaning Buffer
@@ -454,14 +513,14 @@ void start(wchar_t **board) {
 
                 // Check if it is a saving input
                 if(strcmp(input, "SAVE\n") == 0) {
-                    save = 1; 
+                    decision = 1; 
                     continue;
                 }
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
                     undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 0);
-                    if(error == 0) {switching_team = 1;}
+                    if(error == 0) {team = 1;}
                     continue;
 
                 }
@@ -469,8 +528,16 @@ void start(wchar_t **board) {
                 else if(strcmp(input, "REDO\n") == 0) {
 
                     redo_move(memory_board, board, max_slot, &error, Wdead, Bdead);
-                    if(error == 0) {switching_team = 1;}
+                    if(error == 0) {team = 1;}
                     continue;
+
+                }
+                // QUIT from the game
+                else if(strcmp(input, "QUIT\n") == 0) {
+
+                    dealloction(board, memory_board);
+                    wprintf(L"Exiting...\n");
+                    exit(0);
 
                 }
                 // Else this is an error
@@ -494,7 +561,7 @@ void start(wchar_t **board) {
             }
 
             //Move the piece
-            movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
+            movement(sel_row, sel_col, dest_row, dest_col, board, team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
                      &max_slot, saveSlot);
 
@@ -504,7 +571,7 @@ void start(wchar_t **board) {
             }
 
             //switch the team
-            switching_team = 1;
+            team = 1;
 
         }
 
@@ -512,9 +579,6 @@ void start(wchar_t **board) {
         max_slot = saveSlot;
 
     }
-    
-    free(memory_board);
-    free(board);
 }
 
 // Main Menu
