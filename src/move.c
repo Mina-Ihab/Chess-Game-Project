@@ -458,12 +458,13 @@ bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int* Wdead, int* Bde
 }
 void dealloction(wchar_t** twoDim, wchar_t*** threeDim){//the memory and board and they are fixed size no need to dermine dimension
     for(int i=0; i<500; i++){
-        for(int j=0; j<8; j++){
-            free(threeDim[i][j]);
+        for(int r=0; r<11; r++){
+            free(threeDim[i][r]);
         }
         free(threeDim[i]);
     }
     free(threeDim);
+
     for(int i=0; i<8; i++){
         free(twoDim[i]);
     }
