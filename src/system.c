@@ -10,6 +10,7 @@
 
 
 int saveSlot = -1;
+int max_slot = -1;
 
 // 1 = White Team
 // 0 = Black Team
@@ -231,11 +232,10 @@ int save_move(wchar_t*** memory_board, wchar_t** board, int* Wdead, int* Bdead) 
 }
 
 // UNDO Move
-void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int* Wdead, int*Bdead, int update) {
+void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* Wdead, int*Bdead, int update) {
 
     if(saveSlot < 1){*error = 7;return;}
     saveSlot--;
-
     for(int r = 0; r < 8; r++)
         for(int c = 0; c < 8; c++)
             board[r][c] = memory_board[saveSlot][r][c];
@@ -254,16 +254,16 @@ void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, i
     castle4 = memory_board[saveSlot][10][3];
     pessant = memory_board[saveSlot][10][4];
 
-    if(update == 1) saveSlot = *max;
+    if(update == 1) saveSlot = max_slot;
 
 }
 
 // REDO Move
-void redo_move(wchar_t*** memory_board, wchar_t** board, int max, int* error, int* Wdead, int* Bdead) {
+void redo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* Wdead, int* Bdead) {
 
     saveSlot++;
 
-    if(saveSlot > max) {
+    if(saveSlot > max_slot) {
         saveSlot--;
         *error = 8;
         return;
@@ -340,11 +340,11 @@ void start(wchar_t **board) {
     wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
 
     save_move(memory_board, board, Wdead, Bdead);
-    int max_slot = saveSlot;
+    max_slot = saveSlot;
 
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
-        
+
         if(team) {
 
             //Clear Terminal before each print
@@ -405,7 +405,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 0);
+                    undo_move(memory_board, board, &error, Wdead, Bdead, 0);
                     if(error == 0) {team = 0;}
                     continue;
 
@@ -413,7 +413,7 @@ void start(wchar_t **board) {
                 // REDO
                 else if(strcmp(input, "REDO\n") == 0) {
 
-                    redo_move(memory_board, board, max_slot, &error, Wdead, Bdead);
+                    redo_move(memory_board, board, &error, Wdead, Bdead);
                     if(error == 0) {team = 0;}
                     continue;
 
@@ -449,10 +449,10 @@ void start(wchar_t **board) {
 
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, team,
-                     &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, saveSlot);
+                     &error, white_team, black_team, Wdead, Bdead, memory_board);
 
             if(error != 0) {
+                if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, Wdead, Bdead, 1);}
                 continue;
             }
 
@@ -517,7 +517,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 0);
+                    undo_move(memory_board, board, &error, Wdead, Bdead, 0);
                     if(error == 0) {team = 1;}
                     continue;
 
@@ -525,7 +525,7 @@ void start(wchar_t **board) {
                 // REDO
                 else if(strcmp(input, "REDO\n") == 0) {
 
-                    redo_move(memory_board, board, max_slot, &error, Wdead, Bdead);
+                    redo_move(memory_board, board, &error, Wdead, Bdead);
                     if(error == 0) {team = 1;}
                     continue;
 
@@ -560,21 +560,24 @@ void start(wchar_t **board) {
 
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, team,
-                     &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, saveSlot);
+                     &error, white_team, black_team, Wdead, Bdead, memory_board);
 
             if(error != 0) {
+                if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, Wdead, Bdead, 1);}
                 continue;
             }
-        //switch the team
-        team = 1;
+
+            //switch the team
+            team = 1;
+
+        }
 
         save_move(memory_board, board, Wdead, Bdead);
         max_slot = saveSlot;
 
     }
 }
-}
+
 // Main Menu
 void main_menu(wchar_t **board) {
 
