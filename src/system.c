@@ -135,7 +135,7 @@ wchar_t*** create_board_memory() {
         exit(0);
     }
     for(int i = 0; i < 500; i++) {
-        board_memory[i] = (wchar_t **) calloc(8, sizeof(wchar_t*));
+        board_memory[i] = (wchar_t **) calloc(11, sizeof(wchar_t*));
         if(board_memory[i] == NULL) {
             printf("ERROR: There is no free to space create board memory!");
             exit(0);
@@ -147,24 +147,46 @@ wchar_t*** create_board_memory() {
                 exit(0);
             }
         }
+
+        for(int j = 8; j < 11; j++) {
+            board_memory[i][j] = (wchar_t *) calloc(6, sizeof(wchar_t));
+            if(board_memory[i][j] == NULL) {
+                printf("ERROR: There is no free space to create board memory!");
+                exit(0);
+            }
+        }
     }
 
     return board_memory;
 }
 
 // Save the board for UNDO/REDO
-int save_move(wchar_t*** memory_board, wchar_t** board) {
+int save_move(wchar_t*** memory_board, wchar_t** board, int* Wdead, int* Bdead) {
 
     saveSlot++;
 
     for(int r = 0; r < 8; r++)
         for(int c = 0; c < 8; c++)
-            memory_board[saveSlot][c][r] = board[r][c];
+            memory_board[saveSlot][r][c] = board[r][c];
+
+    for(int r = 8; r < 9; r++)
+        for(int c = 0; c < 6; c++)
+            memory_board[saveSlot][r][c] = Wdead[c];
+    
+    for(int r = 9; r < 10; r++)
+        for(int c = 0; c < 6; c++)
+            memory_board[saveSlot][r][c] = Bdead[c];
+
+    memory_board[saveSlot][10][0] = castle1;
+    memory_board[saveSlot][10][1] = castle2;
+    memory_board[saveSlot][10][2] = castle3;
+    memory_board[saveSlot][10][3] = castle4;
+    memory_board[saveSlot][10][4] = pessant;
 
 }
 
 // UNDO Move
-void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int update, int* setting_array) {
+void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int* Wdead, int*Bdead, int update) {
 
     wprintf(L"%d\n", saveSlot);
     if(saveSlot < 1){*error = 7;return;}
@@ -172,21 +194,28 @@ void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, i
 
     for(int r = 0; r < 8; r++)
         for(int c = 0; c < 8; c++)
-            board[r][c] = memory_board[saveSlot][c][r];
+            board[r][c] = memory_board[saveSlot][r][c];
+
+    for(int r = 8; r < 9; r++)
+        for(int c = 0; c < 6; c++)
+            Wdead[c] = memory_board[saveSlot][r][c];
+
+    for(int r = 9; r < 10; r++)
+        for(int c = 0; c < 6; c++)
+            Bdead[c] = memory_board[saveSlot][r][c];
+    
+    castle1 = memory_board[saveSlot][10][0];
+    castle2 = memory_board[saveSlot][10][1];
+    castle3 = memory_board[saveSlot][10][2];
+    castle4 = memory_board[saveSlot][10][3];
+    pessant = memory_board[saveSlot][10][4];
 
     if(update == 1) saveSlot = *max;
-
-    if(saveSlot == setting_array[1]-1) {castle1 = 1; castle_change[1]--;}
-    if(saveSlot == setting_array[2]-1) {castle2 = 1; castle_change[2]--;}
-    if(saveSlot == setting_array[3]-1) {castle3 = 1; castle_change[3]--;}
-    if(saveSlot == setting_array[4]-1) {castle4 = 1; castle_change[4]--;}
-
-    wprintf(L"%d: %d %d %d %d\n", saveSlot, setting_array[1], setting_array[2], setting_array[3], setting_array[4]);
 
 }
 
 // REDO Move
-void redo_move(wchar_t*** memory_board, wchar_t** board, int max, int* error) {
+void redo_move(wchar_t*** memory_board, wchar_t** board, int max, int* error, int* Wdead, int* Bdead) {
 
     saveSlot++;
 
@@ -198,10 +227,25 @@ void redo_move(wchar_t*** memory_board, wchar_t** board, int max, int* error) {
 
     for(int r = 0; r < 8; r++)
         for(int c = 0; c < 8; c++)
-            board[r][c] = memory_board[saveSlot][c][r];
+            board[r][c] = memory_board[saveSlot][r][c];
+
+    for(int r = 8; r < 9; r++)
+        for(int c = 0; c < 6; c++)
+            Wdead[c] = memory_board[saveSlot][r][c];
+
+    for(int r = 9; r < 10; r++)
+        for(int c = 0; c < 6; c++)
+            Bdead[c] = memory_board[saveSlot][r][c];
+    
+    castle1 = memory_board[saveSlot][10][0];
+    castle2 = memory_board[saveSlot][10][1];
+    castle3 = memory_board[saveSlot][10][2];
+    castle4 = memory_board[saveSlot][10][3];
+    pessant = memory_board[saveSlot][10][4];
 
 }
 
+// print the array of dead
 void print_dead(wchar_t *b_pieces,wchar_t *w_pieces, int *w_dead_arr, int* b_dead_arr) {
 
     wprintf(L"White eaten: ");
@@ -227,9 +271,6 @@ void start(wchar_t **board) {
     
     // memory for board to redo/undo
     wchar_t*** memory_board = create_board_memory();
-    save_move(memory_board, board);
-    int max_slot = saveSlot;
-
     int setting_array[5] = {0,0,0,0,0};
 
     int error = 0;
@@ -240,6 +281,10 @@ void start(wchar_t **board) {
 
     //we made this colors to be understandable as the white seams white in vscode darkmode
     int Wdead[6]={0,0,0,0,0,0}, Bdead[6]={0,0,0,0,0,0};
+
+    save_move(memory_board, board, Wdead, Bdead);
+    int max_slot = saveSlot;
+
 
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
@@ -306,7 +351,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &error, &max_slot, 0, setting_array);
+                    undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 0);
                     if(error == 0) {switching_team = 0;}
                     continue;
 
@@ -314,7 +359,7 @@ void start(wchar_t **board) {
                 // REDO
                 else if(strcmp(input, "REDO\n") == 0) {
 
-                    redo_move(memory_board, board, max_slot, &error);
+                    redo_move(memory_board, board, max_slot, &error, Wdead, Bdead);
                     if(error == 0) {switching_team = 0;}
                     continue;
 
@@ -343,10 +388,10 @@ void start(wchar_t **board) {
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, saveSlot, setting_array);
+                     &max_slot, saveSlot);
 
             if(error != 0) {
-                if(error==6){save_move(memory_board, board);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
+                if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 1);}
                 continue;
             }
 
@@ -415,7 +460,7 @@ void start(wchar_t **board) {
                 // UNDO
                 else if(strcmp(input, "UNDO\n") == 0) {
 
-                    undo_move(memory_board, board, &error, &max_slot, 0, setting_array);
+                    undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 0);
                     if(error == 0) {switching_team = 1;}
                     continue;
 
@@ -423,7 +468,7 @@ void start(wchar_t **board) {
                 // REDO
                 else if(strcmp(input, "REDO\n") == 0) {
 
-                    redo_move(memory_board, board, max_slot, &error);
+                    redo_move(memory_board, board, max_slot, &error, Wdead, Bdead);
                     if(error == 0) {switching_team = 1;}
                     continue;
 
@@ -451,10 +496,10 @@ void start(wchar_t **board) {
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, switching_team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board,
-                     &max_slot, saveSlot, setting_array);
+                     &max_slot, saveSlot);
 
             if(error != 0) {
-                if(error==6){save_move(memory_board, board);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, 1, setting_array);}
+                if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, &max_slot, Wdead, Bdead, 1);}
                 continue;
             }
 
@@ -463,7 +508,7 @@ void start(wchar_t **board) {
 
         }
 
-        save_move(memory_board, board);
+        save_move(memory_board, board, Wdead, Bdead);
         max_slot = saveSlot;
 
     }
