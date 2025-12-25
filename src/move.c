@@ -269,13 +269,17 @@ bool knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     }
     else{*error = 5; return false;}
 }
-bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error, int player){
+bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error, int player,
+        wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot,int saveSlot){
     //castle
     if(player==1){
         if(castle1&&moveCol==2&&moveRow==0){
                 for(int i=1; i<moveCol; i++){
                     if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return false;}
                 }
+            if(isPlaceattacked(0, 4, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(0, 5, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(0, 6, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol+1]= L'♜';
             board[beginRow][beginCol]=L'□';
@@ -287,6 +291,10 @@ bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                 for(int i=beginCol-1; i>beginCol+moveCol; i--){
                     if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return false;}
                 }
+            if(isPlaceattacked(0, 4, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(0, 3, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(0, 2, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            //to check if the squares king move in castle is under check
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol-1]= L'♜';
             board[beginRow][beginCol]=L'□';
@@ -300,6 +308,9 @@ bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                 for(int i=1; i<moveCol; i++){
                     if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return false;}
                 }
+            if(isPlaceattacked(7, 4, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(7, 5, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(7, 6, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol+1]= L'♖';
             board[beginRow][beginCol]=L'■';
@@ -311,6 +322,9 @@ bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                 for(int i=beginCol-1; i>beginCol+moveCol; i--){
                     if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return false;}
                 }
+            if(isPlaceattacked(7, 4, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(7, 3, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
+            if(isPlaceattacked(7, 2, board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){*error = 5; return false;}
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol-1]= L'♖';
             board[beginRow][beginCol]=L'■';
@@ -372,17 +386,15 @@ void findking(wchar_t** board, int player, int* targetRow, int* targetCol){
         }
     }
 }
-bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot){ 
+bool isPlaceattacked(int destrow, int destcol, wchar_t** board, int *error, int player, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot,int saveSlot){ 
     int flag=0;
     int saveError = *error;
     wchar_t* oppteam=(player==1)?Wteam:Bteam;//to check if the team of opposite side 
     int* mydead=(player==1)?Bdead:Wdead; // white oppteam white my dead bdead myteam Bteam
     wchar_t* myteam=(player==1)?Bteam:Wteam;
-    int destrow=0, destcol=0;
 
     save_move(memory_board, board, Wdead, Bdead);
 
-    findking(board, player, &destrow, &destcol);
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){
             int beginrow=i,begincol=j;
@@ -392,22 +404,64 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
                 if(board[i][j]==oppteam[k]){ // white oppteam white my dead bdead myteam Bteam
                     wchar_t target=board[i][j];
                     if(target == L'♜' || target == L'♖'){
-                        if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){wprintf(L"%lc %d %d", target, i, j);*error=0;return true;}
+                        if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                            save_move(memory_board, board, Wdead, Bdead);
+                            *Maxslot = saveSlot;
+                            (*Maxslot)--;
+                            undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                            *error=0;
+                            return true;
+                        }//to reverse the theoritical movement
                     }
                     else if(target == L'♞' || target == L'♘'){
-                        if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){*error=0;return true;}
+                        if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                            save_move(memory_board, board, Wdead, Bdead);
+                            *Maxslot = saveSlot;
+                            (*Maxslot)--;
+                            undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                            *error=0;
+                            return true;
+                        }
                     }
                     else if(target == L'♝' || target == L'♗'){
-                        if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){*error=0;return true;}
+                        if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                            save_move(memory_board, board, Wdead, Bdead);
+                            *Maxslot = saveSlot;
+                            (*Maxslot)--;
+                            undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                            *error=0;
+                            return true;
+                        }
                     }
                     else if(target == L'♚' || target == L'♔'){
-                        if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player)){*error=0;return true;}
+                        if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                            save_move(memory_board, board, Wdead, Bdead);
+                            *Maxslot = saveSlot;
+                            (*Maxslot)--;
+                            undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                            *error=0;
+                            return true;
+                        }
                     }
                     else if(target == L'♛' || target == L'♕'){
-                        if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){*error=0;return true;}
+                        if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                            save_move(memory_board, board, Wdead, Bdead);
+                            *Maxslot = saveSlot;
+                            (*Maxslot)--;
+                            undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                            *error=0;
+                            return true;
+                        }
                     }
                     else if(target == L'♟' || target == L'♙'){
-                        if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){*error=0;return true;}
+                        if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){
+                            save_move(memory_board, board, Wdead, Bdead);
+                            *Maxslot = saveSlot;
+                            (*Maxslot)--;
+                            undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                            *error=0;
+                            return true;
+                        }
                     }
                 }
             }
@@ -416,8 +470,18 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
     *error=saveError;//to reset error from theoritical moves
     return false;
 }
-bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, int* mydead, int* Wdead, int* Bdead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int saveSlot){
+bool ischeck(wchar_t** board, int *error, int player, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot, int saveSlot){
+    int destrow=0, destcol=0;
+    findking(board, player, &destrow, &destcol);
+    if(isPlaceattacked(destrow, destcol, board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){return true;}
+    else return false;
+}
+bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int saveSlot){
     int saveError = *error;
+    
+    wchar_t* oppteam=(player==1)?Wteam:Bteam; 
+    int* mydead=(player==1)?Bdead:Wdead;
+    wchar_t* myteam=(player==1)?Bteam:Wteam;
 
     save_move(memory_board, board, Wdead, Bdead);
 
@@ -435,22 +499,64 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, int* mydead, in
                             int moveRow= destrow-beginrow;
                             int moveCol= destcol-begincol;
                             if(target == L'♜' || target == L'♖'){
-                                if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
+                                if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    save_move(memory_board, board, Wdead, Bdead);
+                                    *Maxslot = saveSlot;
+                                    (*Maxslot)--;
+                                    undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                    *error=0;
+                                    return true;
+                                }
                             }
                             else if(target == L'♞' || target == L'♘'){
-                                if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
+                                if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    save_move(memory_board, board, Wdead, Bdead);
+                                    *Maxslot = saveSlot;
+                                    (*Maxslot)--;
+                                    undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                    *error=0;
+                                    return true;
+                                }
                             }
                             else if(target == L'♝' || target == L'♗'){
-                                if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
+                                if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    save_move(memory_board, board, Wdead, Bdead);
+                                    *Maxslot = saveSlot;
+                                    (*Maxslot)--;
+                                    undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                    *error=0;
+                                    return true;
+                                }
                             }
                             else if(target == L'♚' || target == L'♔'){
-                                if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
+                                if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                    save_move(memory_board, board, Wdead, Bdead);
+                                    *Maxslot = saveSlot;
+                                    (*Maxslot)--;
+                                    undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                    *error=0;
+                                    return true;
+                                }
                             }
                             else if(target == L'♛' || target == L'♕'){
-                                if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
+                                if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    save_move(memory_board, board, Wdead, Bdead);
+                                    *Maxslot = saveSlot;
+                                    (*Maxslot)--;
+                                    undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                    *error=0;
+                                    return true;
+                                }
                             }
                             else if(target == L'♟' || target == L'♙'){
-                                if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){save_move(memory_board, board, Wdead, Bdead);*Maxslot = saveSlot;(*Maxslot)--;undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);*error=0;return true;}
+                                if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){
+                                    save_move(memory_board, board, Wdead, Bdead);
+                                    *Maxslot = saveSlot;
+                                    (*Maxslot)--;
+                                    undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                    *error=0;
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -475,7 +581,9 @@ void dealloction(wchar_t** twoDim, wchar_t*** threeDim){//the memory and board a
     }
     free(twoDim);
 }
-void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board, int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot, int slot){
+void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
+    int player, int *error, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead,
+    wchar_t*** memory_board, int* Maxslot, int saveSlot){
     wchar_t piece=board[srcRow][srcCol];
     wchar_t* oppteam=(player==1)?Bteam:Wteam;//to check if the team of opposite side
     int* oppdead=(player==1)?Bdead:Wdead;
@@ -498,11 +606,11 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     int moveCol=destCol-srcCol;
     switch(piece){
         case L'♚':// White King (inverted)
-            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
+            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot);
             //error no need to * or & as it was from caller int* error
             break;
         case L'♔':// Black King
-            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
+            king(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot);
             break;
         case L'♛':// White Queen
             queen(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
@@ -537,27 +645,22 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
             if(destRow==0)pormotion(player,error,board,destCol);
             break;
     }
-    wchar_t* myteam=(player==1)?Wteam:Bteam;//to use on winning conditions
-    int* mydead=(player==1)?Wdead:Bdead;
-    if(isPlaceattacked(board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
+    if(ischeck(board,error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
 
-    if(isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)){
-        save_move(memory_board, board, Wdead, Bdead);
-        *Maxslot = slot;
-        (*Maxslot)--;
-        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
-        if(canMove(board, myteam, oppteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)) {
-            wprintf(L"Check!\n");
-            return;
-        }
-    }
-    // if(canMove(board, myteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)==1){
+    //wining conditions
+    // if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+    //     if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)) {
+    //         wprintf(L"Check!\n");
+    //         return;
+    //     }
+    // }
+    // if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==1){
     //     wprintf(L"Checkmate!\n");
     //     wprintf(L"You win!\n");
     //     dealloction(board,memory_board);
     //     exit(0);//to end game
     // }
-    // if(canMove(board, myteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)==0){
+    // if(canMove(board,Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){
     //     wprintf(L"Stalemate!\n");
     //     wprintf(L"It's Draw!\n");
     //     dealloction(board,memory_board);
