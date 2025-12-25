@@ -194,35 +194,35 @@ bool bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     if(moveRow!=moveCol || moveRow==0&&moveCol==0){*error = 5; return false;}
     if(negative1==1)moveRow=-moveRow;
     if(negative2==1)moveCol=-moveCol;//return negative
-    if(moveCol>0&&moveRow>0){
-        for(int i=1; i<moveRow; i++){
-            for(int j=1; j<moveCol; j++){
-                if(i!=j)continue;
-                if(!(board[i+beginRow][j+beginCol]==L'□' || board[i+beginRow][j+beginCol]==L'■')){*error = 5; return false;}
-            }
-        }
-    }//go up right
-    if(moveCol<0&&moveRow>0){
-        for(int i=1; i<moveRow; i++){
-            for(int j=beginCol-1; j>moveCol+beginCol; j--){
-                if(i+j!=beginCol)continue;
-                if(!(board[i+beginRow][j]==L'□' || board[i+beginRow][j]==L'■')){*error = 5; return false;}
-            }
-        }
-    }//up left
     if(moveCol>0&&moveRow<0){
-        for(int i=beginRow-1; i>beginRow+moveRow; i--){
+        for(int i=beginRow-1; i<beginRow+moveRow; i++){
             for(int j=1; j<moveCol; j++){
-                if(i+j!=beginCol+beginRow)continue;
+                if(i+j!=beginRow)continue;
                 if(!(board[i][j+beginCol]==L'□' || board[i][j+beginCol]==L'■')){*error = 5; return false;}
             }
         }
-    }//down right
+    }//go up right
     if(moveCol<0&&moveRow<0){
-        for(int i=beginRow-1; i>beginRow+moveRow; i--){
+        for(int i=beginRow-1; i<beginRow+moveRow; i++){
             for(int j=beginCol-1; j>moveCol+beginCol; j--){
                 if(i-j!=beginRow-beginCol)continue;
                 if(!(board[i][j]==L'□' || board[i][j]==L'■')){*error = 5; return false;}
+            }
+        }
+    }//up left
+    if(moveCol>0&&moveRow>0){
+        for(int i=1; i>moveRow; i--){
+            for(int j=1; j<moveCol; j++){
+                if(i!=j)continue;
+                if(!(board[beginRow+i][beginCol+j]==L'□' || board[beginRow+i][beginCol+j]==L'■')){*error = 5; return false;}
+            }
+        }
+    }//down right
+    if(moveCol<0&&moveRow>0){
+        for(int i=1; i>moveRow; i--){
+            for(int j=beginCol-1; j>moveCol+beginCol; j--){
+                if(i+j!=beginCol)continue;
+                if(!(board[beginRow+i][j]==L'□' || board[beginRow+i][j]==L'■')){*error = 5; return false;}
             }
         }
     }//down left
@@ -687,15 +687,22 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
             if(destRow==0)pormotion(player,error,board,destCol);
             break;
     }
-    if(ischeck(board,error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
+    if(ischeck(board,error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+        *error=6;
+        save_move(memory_board, board, Wdead, Bdead);
+        *Maxslot = saveSlot;
+        *Maxslot--;
+        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+        return;
+    }//to check if done invalid move by move piece and his king in check
 
     //wining conditions
-    if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)) {
-        if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
-            wprintf(L"Check!\n");
-            return;
-        }
-    }
+    // if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)) {
+    //     if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+    //         wprintf(L"Check!\n");
+    //         return;
+    //     }
+    // }
     // else if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)==0){
     //     if (ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==1){
     //         wprintf(L"Checkmate!\n");
