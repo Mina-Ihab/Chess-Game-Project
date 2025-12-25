@@ -375,8 +375,8 @@ void findking(wchar_t** board, int player, int* targetRow, int* targetCol){
 bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* Bdead, wchar_t*** memory_board, int* Maxslot){ 
     int flag=0;
     int saveError = *error;
-    wchar_t* oppteam=(player==1)?Wteam:Bteam;//to check if the team of opposite side
-    int* mydead=(player==1)?Bdead:Wdead;
+    wchar_t* oppteam=(player==1)?Wteam:Bteam;//to check if the team of opposite side 
+    int* mydead=(player==1)?Bdead:Wdead; // white oppteam white my dead bdead myteam Bteam
     wchar_t* myteam=(player==1)?Bteam:Wteam;
     int destrow=0, destcol=0;
     findking(board, player, &destrow, &destcol);
@@ -386,7 +386,7 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
             int moveRow= destrow-i;
             int moveCol= destcol-j;
             for(int k=0; k<6; k++){
-                if(board[i][j]==oppteam[k]){
+                if(board[i][j]==oppteam[k]){ // white oppteam white my dead bdead myteam Bteam
                     wchar_t target=board[i][j];
                     if(target == L'♜' || target == L'♖'){
                         if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){wprintf(L"%lc %d %d", target, i, j);*error=0;return true;}
@@ -413,14 +413,17 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
     *error=saveError;//to reset error from theoritical moves
     return false;
 }
-bool canMove(wchar_t** board, wchar_t* myteam, int* mydead, int* Wdead, int* Bdead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int saveSlot){
+bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, int* mydead, int* Wdead, int* Bdead, int *error, int player, wchar_t*** memory_board, int* Maxslot, int saveSlot){
     int saveError = *error;
+
+    save_move(memory_board, board, Wdead, Bdead);
+
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){//to get begining of piece
             int beginrow=i;
             int begincol=j;
             for(int k=0; k<6; k++){
-                if(board[i][j]==myteam[k]){//test if it is from opponent team
+                if(board[i][j]==oppteam[k]){//test if it is from opponent team
                     wchar_t target=board[i][j];
                     for(int x=0; x<8; x++){
                         for(int y=0; y<8; y++){//test all compinations of movement
@@ -534,7 +537,8 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     wchar_t* myteam=(player==1)?Wteam:Bteam;//to use on winning conditions
     int* mydead=(player==1)?Wdead:Bdead;
     if(isPlaceattacked(board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
-    // if(canMove(board, myteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot) && isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)){
+
+    // if(isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot) && canMove(board, myteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)){
     //     wprintf(L"Check!\n");
     //     return;
     // }
