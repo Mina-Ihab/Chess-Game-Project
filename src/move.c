@@ -500,62 +500,104 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                             int moveCol= destcol-begincol;
                             if(target == L'♜' || target == L'♖'){
                                 if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                        save_move(memory_board, board, Wdead, Bdead);
+                                        *Maxslot = saveSlot;
+                                        (*Maxslot)--;
+                                        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                        *error=0;
+                                        return true;
+                                    }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
-                                    return true;
                                 }
                             }
                             else if(target == L'♞' || target == L'♘'){
                                 if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                        save_move(memory_board, board, Wdead, Bdead);
+                                        *Maxslot = saveSlot;
+                                        (*Maxslot)--;
+                                        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                        *error=0;
+                                        return true;
+                                    }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
-                                    return true;
                                 }
                             }
                             else if(target == L'♝' || target == L'♗'){
                                 if(bishop(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                        save_move(memory_board, board, Wdead, Bdead);
+                                        *Maxslot = saveSlot;
+                                        (*Maxslot)--;
+                                        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                        *error=0;
+                                        return true;
+                                    }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
-                                    return true;
                                 }
                             }
                             else if(target == L'♚' || target == L'♔'){
                                 if(king(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                    if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                        save_move(memory_board, board, Wdead, Bdead);
+                                        *Maxslot = saveSlot;
+                                        (*Maxslot)--;
+                                        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                        *error=0;
+                                        return true;
+                                    }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
-                                    return true;
                                 }
                             }
                             else if(target == L'♛' || target == L'♕'){
                                 if(queen(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){
+                                    if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                        save_move(memory_board, board, Wdead, Bdead);
+                                        *Maxslot = saveSlot;
+                                        (*Maxslot)--;
+                                        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                        *error=0;
+                                        return true;
+                                    }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
-                                    return true;
                                 }
                             }
                             else if(target == L'♟' || target == L'♙'){
                                 if(pawn(beginrow, begincol, destrow, destcol, moveRow, moveCol, board, myteam, mydead, error, player)){
+                                    if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
+                                        save_move(memory_board, board, Wdead, Bdead);
+                                        *Maxslot = saveSlot;
+                                        (*Maxslot)--;
+                                        undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
+                                        *error=0;
+                                        return true;
+                                    }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
-                                    return true;
                                 }
                             }
                         }
@@ -648,22 +690,25 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     if(ischeck(board,error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
 
     //wining conditions
-    // if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
-    //     if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)) {
+    // if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)==1) {
+    //     if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)){
     //         wprintf(L"Check!\n");
     //         return;
     //     }
     // }
-    // if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==1){
-    //     wprintf(L"Checkmate!\n");
-    //     wprintf(L"You win!\n");
-    //     dealloction(board,memory_board);
-    //     exit(0);//to end game
+    // else if(canMove(board, Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, saveSlot)==0){
+    //     if (ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==1){
+    //         wprintf(L"Checkmate!\n");
+    //         wprintf(L"You win!\n");
+    //         dealloction(board,memory_board);
+    //         exit(0);//to end game
+    //     }
+    //     else if(ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){
+    //         wprintf(L"Stalemate!\n");
+    //         wprintf(L"It's Draw!\n");
+    //         dealloction(board,memory_board);
+    //         exit(0);
+    //     }
     // }
-    // if(canMove(board,Wteam, Bteam, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&ischeck(board,error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot, saveSlot)==0){
-    //     wprintf(L"Stalemate!\n");
-    //     wprintf(L"It's Draw!\n");
-    //     dealloction(board,memory_board);
-    //     exit(0);
-    // }
+    else return;
 }
