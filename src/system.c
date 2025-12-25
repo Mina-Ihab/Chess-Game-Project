@@ -233,7 +233,6 @@ int save_move(wchar_t*** memory_board, wchar_t** board, int* Wdead, int* Bdead) 
 // UNDO Move
 void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* max, int* Wdead, int*Bdead, int update) {
 
-    wprintf(L"%d\n", saveSlot);
     if(saveSlot < 1){*error = 7;return;}
     saveSlot--;
 
