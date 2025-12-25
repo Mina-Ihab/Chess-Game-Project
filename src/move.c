@@ -541,13 +541,15 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     int* mydead=(player==1)?Wdead:Bdead;
     if(isPlaceattacked(board, error, !player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)){*error=6;return;}//to check if done invalid move by move piece and his king in check
 
-    if(isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot) && canMove(board, myteam, oppteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)){
+    if(isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)){
         save_move(memory_board, board, Wdead, Bdead);
         *Maxslot = slot;
         (*Maxslot)--;
         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
-        wprintf(L"Check!\n");
-        return;
+        if(canMove(board, myteam, oppteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)) {
+            wprintf(L"Check!\n");
+            return;
+        }
     }
     // if(canMove(board, myteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)==1){
     //     wprintf(L"Checkmate!\n");
