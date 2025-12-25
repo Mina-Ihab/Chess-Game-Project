@@ -301,7 +301,7 @@ bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                     if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return false;}
                 }
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-            board[beginRow][beginCol+1]= L'♜';
+            board[beginRow][beginCol+1]= L'♖';
             board[beginRow][beginCol]=L'■';
             board[7][7]=L'■';
             castle3=0;castle4=0;
@@ -312,7 +312,7 @@ bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
                     if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return false;}
                 }
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-            board[beginRow][beginCol-1]= L'♜';
+            board[beginRow][beginCol-1]= L'♖';
             board[beginRow][beginCol]=L'■';
             board[7][0]=L'□';
             castle3=0;castle4=0;;
@@ -389,8 +389,7 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
                 if(board[i][j]==oppteam[k]){
                     wchar_t target=board[i][j];
                     if(target == L'♜' || target == L'♖'){
-                        wprintf(L"%d %d %d %d\n", beginrow, begincol, moveRow, moveCol);
-                        if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){*error=0;return true;}
+                        if(rook(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){wprintf(L"%lc %d %d", target, i, j);*error=0;return true;}
                     }
                     else if(target == L'♞' || target == L'♘'){
                         if(knight(beginrow, begincol, moveRow, moveCol, board, myteam, mydead, error)){*error=0;return true;}
@@ -543,12 +542,12 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
     //     wprintf(L"Checkmate!\n");
     //     wprintf(L"You win!\n");
     //     dealloction(board,memory_board);
-    //     exit(1);//to end game
+    //     exit(0);//to end game
     // }
     // if(canMove(board, myteam, mydead, Wdead, Bdead, error, !player, memory_board, Maxslot, slot)==0&&isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board, Maxslot)==0){
     //     wprintf(L"Stalemate!\n");
     //     wprintf(L"It's Draw!\n");
     //     dealloction(board,memory_board);
-    //     exit(1);
+    //     exit(0);
     // }
 }
