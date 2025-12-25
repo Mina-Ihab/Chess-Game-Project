@@ -506,7 +506,7 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                                         (*Maxslot)--;
                                         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                         *error=0;
-                                        return true;
+                                        
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
@@ -523,13 +523,14 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                                         (*Maxslot)--;
                                         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                         *error=0;
-                                        return true;
+                                        continue;
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
+                                    return true;
                                 }
                             }
                             else if(target == L'♝' || target == L'♗'){
@@ -540,13 +541,14 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                                         (*Maxslot)--;
                                         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                         *error=0;
-                                        return true;
+                                        continue;
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
+                                    return true;
                                 }
                             }
                             else if(target == L'♚' || target == L'♔'){
@@ -557,13 +559,14 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                                         (*Maxslot)--;
                                         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                         *error=0;
-                                        return true;
+                                        continue;
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
+                                    return true;
                                 }
                             }
                             else if(target == L'♛' || target == L'♕'){
@@ -574,13 +577,14 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                                         (*Maxslot)--;
                                         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                         *error=0;
-                                        return true;
+                                        continue;
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
+                                    return true;
                                 }
                             }
                             else if(target == L'♟' || target == L'♙'){
@@ -591,13 +595,14 @@ bool canMove(wchar_t** board, wchar_t* Wteam, wchar_t* Bteam, int* Wdead, int* B
                                         (*Maxslot)--;
                                         undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                         *error=0;
-                                        return true;
+                                        continue;
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     *Maxslot = saveSlot;
                                     (*Maxslot)--;
                                     undo_move(memory_board, board, error, Maxslot, Wdead, Bdead, 1);
                                     *error=0;
+                                    return true;
                                 }
                             }
                         }
