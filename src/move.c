@@ -497,7 +497,6 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
                                     *error=saveError;
-                                    wprintf(L"dsad\n");
                                     return true;
                                 
                                 }
@@ -516,7 +515,6 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
                                     *error=saveError;
-                                    wprintf(L"fsad\n");
                                     return true;
                                 }
                             }
