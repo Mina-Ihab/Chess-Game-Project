@@ -9,8 +9,7 @@
 #include "../include/move.h"
 #include "../include/system.h"
 
-// to return castle when undo and redo
-int castle1=1,castle2=1,castle3=1,castle4=1,pessant=0; //flags special moves
+int pessant=0; //flags special moves
 
 void pormotion(int player, int* error, wchar_t** board, int col){
     char piece_s[3], piece;
@@ -99,10 +98,6 @@ bool rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
     if(decision==0){
         for(int i=0; i<6; i++){
             if(board[beginRow][beginCol+moveCol]==team[i]){
-                if(beginRow==0&&beginCol==0) castle1=0;
-                if(beginRow==0&&beginCol==7) castle2=0;
-                if(beginRow==7&&beginCol==0) castle3=0;
-                if(beginRow==7&&beginCol==7) castle4=0;
                 board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
                 dead[i]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
@@ -111,10 +106,6 @@ bool rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             }
         }
         if((board[beginRow][beginCol+moveCol]==L'□' || board[beginRow][beginCol+moveCol]==L'■')){
-            if(beginRow==0&&beginCol==0) castle1=0;
-            if(beginRow==0&&beginCol==7) castle2=0;
-            if(beginRow==7&&beginCol==0) castle3=0;
-            if(beginRow==7&&beginCol==7) castle4=0;
             board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
@@ -125,10 +116,6 @@ bool rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
     else if(decision==1){
         for(int i=0; i<6; i++){
             if(board[beginRow+moveRow][beginCol]==team[i]){
-                if(beginRow==0&&beginCol==0) castle1=0;
-                if(beginRow==0&&beginCol==7) castle2=0;
-                if(beginRow==7&&beginCol==0) castle3=0;
-                if(beginRow==7&&beginCol==7) castle4=0;
                 board[beginRow+moveRow][beginCol]=board[beginRow][beginCol];
                 dead[i]++;
                 board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
@@ -137,10 +124,6 @@ bool rook(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
             }
         }
         if((board[beginRow+moveRow][beginCol]==L'□' || board[beginRow+moveRow][beginCol]==L'■')){
-            if(beginRow==0&&beginCol==0) castle1=0;
-            if(beginRow==0&&beginCol==7) castle2=0;
-            if(beginRow==7&&beginCol==0) castle3=0;
-            if(beginRow==7&&beginCol==7) castle4=0;
             board[beginRow+moveRow][beginCol]=board[beginRow][beginCol];
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
             pessant=0;
@@ -271,61 +254,10 @@ bool knight(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     else{*error = 5; return false;}
 }
 bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board, wchar_t* team, int* dead, int *error, int player){
-    //castle
-    if(player==1){
-        if(castle1&&moveCol==2&&moveRow==0){
-                for(int i=1; i<moveCol; i++){
-                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return false;}
-                }
-            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-            board[beginRow][beginCol+1]= L'♜';
-            board[beginRow][beginCol]=L'□';
-            board[0][7]=L'■';
-            castle1=0;castle2=0;
-            return true;
-        }
-        if(castle2&&moveCol==-2&&moveRow==0){
-                for(int i=beginCol-1; i>beginCol+moveCol; i--){
-                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return false;}
-                }
-            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-            board[beginRow][beginCol-1]= L'♜';
-            board[beginRow][beginCol]=L'□';
-            board[0][0]=L'□';
-            castle1=0;castle2=0;
-            return true;
-        }
-    }
-    else if(player==0){
-        if(castle3&&moveCol==2&&moveRow==0){
-                for(int i=1; i<moveCol; i++){
-                    if(!(board[beginRow][i+beginCol]==L'□' || board[beginRow][i+beginCol]==L'■')){*error = 5; return false;}
-                }
-            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-            board[beginRow][beginCol+1]= L'♖';
-            board[beginRow][beginCol]=L'■';
-            board[7][7]=L'■';
-            castle3=0;castle4=0;
-            return true;
-        }
-        if(castle4&&moveCol==-2&&moveRow==0){
-                for(int i=beginCol-1; i>beginCol+moveCol; i--){
-                    if(!(board[beginRow][i]==L'□' || board[beginRow][i]==L'■')){*error = 5; return false;}
-                }
-            board[beginRow][beginCol+moveCol]=board[beginRow][beginCol];
-            board[beginRow][beginCol-1]= L'♖';
-            board[beginRow][beginCol]=L'■';
-            board[7][0]=L'□';
-            castle3=0;castle4=0;;
-            return true;
-        }
-    }
     //normal move
     if(moveCol>1 || moveCol<-1 || moveRow>1 || moveRow<-1 || moveRow==0&&moveCol==0){*error = 5; return false;}
     for(int i=0; i<6; i++){
         if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
-            if(board[beginRow][beginCol] == L'♚') {castle1=0;castle2=0;}
-            else {castle3=0;castle4=0;}
             board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
             dead[i]++;
             board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
@@ -334,8 +266,6 @@ bool king(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** board,
         }
     }
     if((board[beginRow+moveRow][beginCol+moveCol]==L'□' || board[beginRow+moveRow][beginCol+moveCol]==L'■')){
-        if(board[beginRow][beginCol] == L'♚') {castle1=0;castle2=0;}
-        else {castle3=0;castle4=0;}
         board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
         board[beginRow][beginCol] = (beginRow+beginCol)%2==0?L'□':L'■';
         pessant=0;
