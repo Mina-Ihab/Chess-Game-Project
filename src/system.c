@@ -387,7 +387,10 @@ void gamePlaySystem(wchar_t*** memory_board, wchar_t** board, wchar_t* Bteam, wc
         else if(strcmp(input, "UNDO") == 0) {
 
             undo_move(memory_board, board, error, Wdead, Bdead, 0);
-            if(*error == 0) {*team = 0;}
+            if(*error == 0) {
+                if(*team == 1) *team = 0;
+                else *team = 1;
+            }
             *isUndo = 1;
             return;
 
@@ -396,7 +399,10 @@ void gamePlaySystem(wchar_t*** memory_board, wchar_t** board, wchar_t* Bteam, wc
         else if(strcmp(input, "REDO") == 0) {
 
             redo_move(memory_board, board, error, Wdead, Bdead);
-            if(*error == 0) {*team = 0;}
+            if(*error == 0) {
+                if(*team == 1) *team = 0;
+                else *team = 1;
+            }
             *isRedo = 1;
             return;
 
