@@ -341,8 +341,10 @@ int lenght_chec(char* string) {
     return 0;
 }
 
-void gamePlaySystem(wchar_t*** memory_board, wchar_t** board, wchar_t* Bteam, wchar_t* Wteam, wchar_t* Bdead, wchar_t* Wdead, int* error, int* decision, int* isUndo, int* isRedo,
-                    int* team, char* input, int size, int* s_r, char* s_c, int* d_r, char* d_c, int* s_row, int* s_col, int* d_row, int* d_col) {
+void gamePlaySystem(wchar_t*** memory_board, wchar_t** board, wchar_t* Bteam, wchar_t* Wteam, wchar_t* Bdead, wchar_t* Wdead,
+                    int* error, int* decision, int* isUndo, int* isRedo,
+                    int* team, char* input, int size, int* s_r, char* s_c, int* d_r, char* d_c, 
+                    int* s_row, int* s_col, int* d_row, int* d_col) {
 
     if(*team == 1) {wprintf(L"White's turn (format: B1C3, type 'cmd' for commands):\n--> ");}
     else {wprintf(L"Black's turn (format: B1C3, type 'cmd' for commands):\n--> ");}
@@ -442,10 +444,7 @@ void gamePlaySystem(wchar_t*** memory_board, wchar_t** board, wchar_t* Bteam, wc
 }
 
 // Start the game
-void start(wchar_t **board) {
-    
-    // memory for board to redo/undo
-    wchar_t*** memory_board = create_board_memory();
+void start(wchar_t **board, wchar_t*** memory_board) {
 
     int error = 0;
     int decision = 0;
@@ -569,7 +568,7 @@ void start(wchar_t **board) {
 }
 
 // Main Menu
-void main_menu(wchar_t **board) {
+void main_menu(wchar_t **board, wchar_t *** memoryboard) {
 
     char os_input[10];
     int saving_error = 0;
@@ -608,6 +607,7 @@ void main_menu(wchar_t **board) {
         // If it is exit, close the game.
         else if(strcmp(os_input, "EXIT\n") == 0) {
             wprintf(L"SYSTEM: Exiting...\n");
+            dealloction(board, memoryboard);
             exit(0);
         }
         // If it is invalid input.
