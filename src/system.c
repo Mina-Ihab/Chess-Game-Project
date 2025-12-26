@@ -104,10 +104,10 @@ void save_board(wchar_t **board) {
     data[5] = pessant + '0';
 
     for(int i = 0; i < 6; i++)
-        data[i+6] = Wdead[i] + '0'; // 6 7 8 9 10 11
+        data[i+6] = Wdead[i] + '0';
 
     for(int i = 0; i < 6; i++)
-        data[i+12] = Bdead[i] + '0'; // 12 13 14 15 16 17
+        data[i+12] = Bdead[i] + '0';
 
     for(int i = 0; i < 8; i++) {
 
@@ -468,7 +468,7 @@ void start(wchar_t **board, wchar_t*** memory_board) {
         //Real Co-ordination:
             int sel_col, sel_row, dest_row, dest_col;
 
-    //we can remove the 1 and make it, if the game is not end 
+    // Main game loop
     while(1) {
 
         if(team) {
