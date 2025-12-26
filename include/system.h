@@ -4,10 +4,11 @@
 #include <wchar.h>
 
 extern int saveSlot, max_slot;
-void start(wchar_t **board);
-void main_menu(wchar_t **board);
+void start(wchar_t** board, wchar_t*** memory_board);
+void main_menu(wchar_t** board, wchar_t*** memoryboard);
 void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* Wdead, int*Bdead, int update);
 int save_move(wchar_t*** memory_board, wchar_t** board, int* Wdead, int* Bdead);
 void redo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* Wdead, int* Bdead);
+wchar_t*** create_board_memory();
 
 #endif
