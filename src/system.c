@@ -570,7 +570,7 @@ void main_menu(wchar_t **board) {
 
     while(1) {
 
-        // clear_terminal();
+        clear_terminal();
 
         wprintf(L"------==MAIN MENU==------\n");
         wprintf(L"\tStart\n");
