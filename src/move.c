@@ -194,38 +194,39 @@ bool bishop(int beginRow, int beginCol, int moveRow, int moveCol, wchar_t** boar
     if(moveRow!=moveCol || moveRow==0&&moveCol==0){*error = 5; return false;}
     if(negative1==1)moveRow=-moveRow;
     if(negative2==1)moveCol=-moveCol;//return negative
+    
     if(moveCol>0&&moveRow<0){
-        for(int i=beginRow-1; i<beginRow+moveRow; i++){
-            for(int j=1; j<moveCol; j++){
-                if(i+j!=beginRow)continue;
-                if(!(board[i][j+beginCol]==L'□' || board[i][j+beginCol]==L'■')){*error = 5; return false;}
+        for(int i=1; i< moveCol; i++){
+            if(!(board[beginRow-i][beginCol+i]==L'□' || board[beginRow-i][beginCol+i]==L'■')){
+                *error = 5; 
+                return false;
             }
         }
-    }//go up right
-    if(moveCol<0&&moveRow<0){
-        for(int i=beginRow-1; i<beginRow+moveRow; i++){
-            for(int j=beginCol-1; j>moveCol+beginCol; j--){
-                if(i-j!=beginRow-beginCol)continue;
-                if(!(board[i][j]==L'□' || board[i][j]==L'■')){*error = 5; return false;}
+    } // up right
+    if(moveCol<0&&moveRow<0){ 
+        for(int i=1; i< -(moveRow); i++){
+            if(!(board[beginRow-i][beginCol-i]==L'□' || board[beginRow-i][beginCol-i]==L'■')){
+                *error = 5; 
+                return false;
             }
         }
-    }//up left
+    } // up left
     if(moveCol>0&&moveRow>0){
-        for(int i=1; i>moveRow; i--){
-            for(int j=1; j<moveCol; j++){
-                if(i!=j)continue;
-                if(!(board[beginRow+i][beginCol+j]==L'□' || board[beginRow+i][beginCol+j]==L'■')){*error = 5; return false;}
+        for(int i=1; i< moveRow; i++){
+            if(!(board[beginRow+i][beginCol+i]==L'□' || board[beginRow+i][beginCol+i]==L'■')){
+                *error = 5; 
+                return false;
             }
         }
-    }//down right
-    if(moveCol<0&&moveRow>0){
-        for(int i=1; i>moveRow; i--){
-            for(int j=beginCol-1; j>moveCol+beginCol; j--){
-                if(i+j!=beginCol)continue;
-                if(!(board[beginRow+i][j]==L'□' || board[beginRow+i][j]==L'■')){*error = 5; return false;}
+    } // down right
+    if(moveCol<0&&moveRow>0){ 
+        for(int i=1; i< moveRow; i++){
+            if(!(board[beginRow+i][beginCol-i]==L'□' || board[beginRow+i][beginCol-i]==L'■')){
+                *error = 5; 
+                return false;
             }
         }
-    }//down left
+    } // down left 
     for(int i=0; i<6; i++){
         if(board[beginRow+moveRow][beginCol+moveCol]==team[i]){
             board[beginRow+moveRow][beginCol+moveCol]=board[beginRow][beginCol];
@@ -416,9 +417,7 @@ bool isPlaceattacked(wchar_t** board, int *error, int player, wchar_t* Wteam, wc
 }
 bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam, wchar_t* Bteam, int* mydead, int* Wdead, int* Bdead, int *error, int player, wchar_t*** memory_board){
     int saveError = *error;
-    // 0 0
     save_move(memory_board, board, Wdead, Bdead);
-    // 0 1
     for(int i=0; i<8; i++){
         for(int j=0; j<8; j++){//to get begining of piece
             int beginrow=i;
@@ -440,14 +439,13 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                         max_slot = saveSlot;
                                         max_slot -= 1;
                                         undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                        wprintf(L"1\n");
                                         continue;
                                     }
                                     save_move(memory_board, board, Wdead, Bdead);
                                     max_slot = saveSlot;
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                    *error=0;
+                                    *error=saveError;
                                     return true;
                                 }
                             }
@@ -464,7 +462,7 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot = saveSlot;
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                    *error=0;
+                                    *error=saveError;
                                     return true;
                                 }
                             }
@@ -481,7 +479,7 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot = saveSlot;
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                    *error=0;  
+                                    *error=saveError; 
                                     return true;
                                 }
                             }
@@ -498,8 +496,7 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot = saveSlot;
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                    *error=0;
-                                    wprintf(L"%d %d %d %d\n", beginrow,begincol,moveRow, moveCol);
+                                    *error=saveError;
                                     return true;
                                 
                                 }
@@ -517,7 +514,7 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot = saveSlot;
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                    *error=0;
+                                    *error=saveError;
                                     return true;
                                 }
                             }
@@ -534,7 +531,7 @@ bool canMove(wchar_t** board, wchar_t* myteam, wchar_t* oppteam, wchar_t* Wteam,
                                     max_slot = saveSlot;
                                     max_slot -= 2;
                                     undo_move(memory_board, board, error, Wdead, Bdead, 1);
-                                    *error=0;
+                                    *error=saveError;
                                     return true;
                                 }
                             }
@@ -642,6 +639,13 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
             exit(0);
         }
 
+    }
+    else {
+        save_move(memory_board, board, Wdead, Bdead);
+        if(isPlaceattacked(board, error, player, Wteam, Bteam, Wdead, Bdead, memory_board)) {
+            *error = 9;
+            return;
+        }
     }
 
 }

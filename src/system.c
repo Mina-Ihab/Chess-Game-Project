@@ -67,6 +67,9 @@ int error_check(int msg_id) {
     else if(msg_id == 8) {
         wprintf(L"ERROR: There is no more REDO!\n");
     }
+    else if(msg_id == 9) {
+        wprintf(L"SYSTEM: Check\n");
+    }
 
     return 0;
 }
@@ -76,14 +79,10 @@ int error_check(int msg_id) {
 void cleaning_buffer(char* string) {
 
     //If there is no end of line (that's mean there is a buffer)
-    while(strchr(string, '\n') == NULL) {
-        //Read the character by character
-        //and remove it from the buffer
-        int ch = getchar();
-
-        //if it's a new line then this is the end of the input
-        if(ch == '\n')
-            break;
+    if(strchr(string, '\n') == NULL) {
+        int ch;
+        // eof --> to make the while exit when the character is new line or end of input
+        while((ch = getchar()) != '\n' && ch != EOF);
     }
 
 }
@@ -325,6 +324,117 @@ int decision_check(int decision, wchar_t ** board) {
     return 0;
 }
 
+int lenght_chec(char* string) {
+
+    // Get the length of the string
+    int lenght = strlen(string);
+    // replace last character by \0
+    if(lenght > 0 && string[lenght-1] == '\n') {
+        string[lenght-1] ='\0';
+        lenght--;
+    }
+    // if it is not 4 then return 1 to the error
+    if(strlen(string) > 4) {
+        wprintf(L"errror\n");
+        return 1;
+    }
+    return 0;
+}
+
+void gamePlaySystem(wchar_t*** memory_board, wchar_t** board, wchar_t* Bteam, wchar_t* Wteam, wchar_t* Bdead, wchar_t* Wdead, int* error, int* decision, int* isUndo, int* isRedo,
+                    int* team, char* input, int size, int* s_r, char* s_c, int* d_r, char* d_c, int* s_row, int* s_col, int* d_row, int* d_col) {
+
+    if(*team == 1) {wprintf(L"White's turn (format: B1C3, type 'cmd' for commands):\n--> ");}
+    else {wprintf(L"Black's turn (format: B1C3, type 'cmd' for commands):\n--> ");}
+        
+    fgets(input, size, stdin);
+
+    //Cleaning Buffer
+    cleaning_buffer(input);
+
+    // Make Sure input is 4 Letters
+    *error = lenght_chec(input);
+    if(*error == 1) return;
+
+    //Make the letter UpperCase
+    input[0] = toupper(input[0]);
+    input[2] = toupper(input[2]);
+    
+    // check validity of input
+    if(sscanf(input, "%c %d %c %d", s_c, s_r, d_c, d_r) == 4) {
+        
+        *s_col = *s_c - 'A';
+        *d_col = *d_c - 'A';
+        *s_row = *s_r - 1;
+        *d_row = *d_r - 1;
+
+    }
+    else {
+        // if it's not a game input
+        input[1] = toupper(input[1]);
+        input[3] = toupper(input[3]);
+
+        // Check if it is a saving input
+        if(strcmp(input, "CMD") == 0) {
+            *decision = 2;
+            return;
+        }
+        else if(strcmp(input, "SAVE") == 0) {
+            *decision = 1; 
+            return;
+        }
+        // UNDO
+        else if(strcmp(input, "UNDO") == 0) {
+
+            undo_move(memory_board, board, error, Wdead, Bdead, 0);
+            if(*error == 0) {*team = 0;}
+            *isUndo = 1;
+            return;
+
+        }
+        // REDO
+        else if(strcmp(input, "REDO") == 0) {
+
+            redo_move(memory_board, board, error, Wdead, Bdead);
+            if(*error == 0) {*team = 0;}
+            *isRedo = 1;
+            return;
+
+        }
+        // QUIT from the game
+        else if(strcmp(input, "QUIT") == 0) {
+
+            dealloction(board, memory_board);
+            wprintf(L"Exiting...\n");
+            exit(0);
+
+        }
+        // Else this is an error
+        else {
+
+            *error = 1;
+            return;
+
+        }
+    }
+
+    //Check if its in the board
+    int isOut = (*s_col < 0 || *s_col > 7) || (*d_col < 0 || *d_col > 7) || (*s_row < 0 || *s_row > 7) || (*d_row < 0 || *d_row > 7);
+    if(isOut) {
+        *error = 1;
+        return;
+    }
+
+
+    //Check for empty place
+    int isEmpty = (board[*s_row][*s_col] == L'□' || board[*s_row][*s_col] == L'■');
+    if(isEmpty) {
+        *error = 2;
+        return;
+    }
+
+}
+
 // Start the game
 void start(wchar_t **board) {
     
@@ -333,14 +443,25 @@ void start(wchar_t **board) {
 
     int error = 0;
     int decision = 0;
+    int lenght;
     char input[6];//4 inputs + \n +\0
+    int isUndo = 0;
+    int isRedo = 0;
 
     //we made this colors to be understandable as the white seams white in vscode darkmode
     wchar_t white_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
     wchar_t black_team[6]={L'♔', L'♕', L'♖', L'♗', L'♘', L'♙'};
 
+    // To save the first slot
     save_move(memory_board, board, Wdead, Bdead);
     max_slot = saveSlot;
+
+    //Declare Co-ordination
+        //For scaning:
+            char s_col, d_col;
+            int s_row, d_row;
+        //Real Co-ordination:
+            int sel_col, sel_row, dest_row, dest_col;
 
     //we can remove the 1 and make it, if the game is not end 
     while(1) {
@@ -348,7 +469,7 @@ void start(wchar_t **board) {
         if(team) {
 
             //Clear Terminal before each print
-            // clear_terminal();
+            clear_terminal();
 
             //print the board
             print_board(board);
@@ -359,101 +480,27 @@ void start(wchar_t **board) {
             
             //if the loop is repeated due to save
             decision = decision_check(decision, board);
-
-            // take inpute
-            wprintf(L"White's turn (format: B1C3, type 'cmd' for commands):\n--> ");
-            fgets(input, sizeof(input), stdin);
-
-            //Cleaning Buffer
-            cleaning_buffer(input);
-
-            //Make the letter UpperCase
-            input[0] = toupper(input[0]);
-            input[2] = toupper(input[2]);
             
-            //Declare Co-ordination
-                //For scaning:
-                    char s_col, d_col;
-                    int s_row, d_row;
-                //Real Co-ordination:
-                    int sel_col, sel_row, dest_row, dest_col;
-            
-            
-            // check validity of input
-            if(sscanf(input, "%c %d %c %d", &s_col, &s_row, &d_col, &d_row) == 4) {
-                
-                sel_col = s_col - 'A';
-                dest_col = d_col - 'A';
-                sel_row = s_row - 1;
-                dest_row = d_row - 1;
-
-            }
-            else {
-                // if it's not a game input
-                input[1] = toupper(input[1]);
-                input[3] = toupper(input[3]);
-
-                // Check if it is a saving input
-                if(strcmp(input, "CMD\n") == 0) {
-                    decision = 2;
-                    continue;
-                }
-                else if(strcmp(input, "SAVE\n") == 0) {
-                    decision = 1; 
-                    continue;
-                }
-                // UNDO
-                else if(strcmp(input, "UNDO\n") == 0) {
-
-                    undo_move(memory_board, board, &error, Wdead, Bdead, 0);
-                    if(error == 0) {team = 0;}
-                    continue;
-
-                }
-                // REDO
-                else if(strcmp(input, "REDO\n") == 0) {
-
-                    redo_move(memory_board, board, &error, Wdead, Bdead);
-                    if(error == 0) {team = 0;}
-                    continue;
-
-                }
-                // QUIT from the game
-                else if(strcmp(input, "QUIT\n") == 0) {
-
-                    dealloction(board, memory_board);
-                    wprintf(L"Exiting...\n");
-                    exit(0);
-
-                }
-                // Else this is an error
-                else {
-
-                    error = 1;
-                    continue;
-
-                }
-            }
-            
-            //Check if its in the board
-            if((sel_col < 0 || sel_col > 7) || (dest_col < 0 || dest_col > 7) || (sel_row < 0 || sel_row > 7) || (dest_row < 0 || dest_row > 7)) {
-                error = 1;
-                continue;
-            }
-
-            //Check for empty place
-            if(board[sel_row][sel_col] == L'□' || board[sel_row][sel_col] == L'■') {
-                error = 2;
-                continue;
-            }
+            gamePlaySystem(memory_board, board, black_team, white_team, Bdead, Wdead, &error, &decision, &isUndo, &isRedo, &team, input, sizeof(input), &s_row, &s_col, &d_row, &d_col, &sel_row, &sel_col, &dest_row, &dest_col);
+            if(error != 0) continue;
+            if(decision != 0) continue;
+            if(isUndo) {isUndo = 0; continue;}
+            if(isRedo) {isRedo = 0; continue;}
 
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board);
-
-            if(error != 0) {
+            
+            // Handle some erros related to the movement
+            if(error != 0 && error != 9) {
                 if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, Wdead, Bdead, 1);}
                 continue;
+            }
+            else if (error == 9) {
+                save_move(memory_board, board, Wdead, Bdead);
+                max_slot = saveSlot;
+                max_slot--;
+                undo_move(memory_board, board, &error, Wdead, Bdead, 1);
             }
 
             //switch the team
@@ -463,7 +510,7 @@ void start(wchar_t **board) {
         else {
             
             //Clear Terminal before each print
-            // clear_terminal();
+            clear_terminal();
 
             //print the board
             print_board(board);
@@ -475,105 +522,42 @@ void start(wchar_t **board) {
             //if the loop is repeated due to save
             decision = decision_check(decision, board);
 
-            // take inpute
-            wprintf(L"Black's turn (format: B1C3, type 'cmd' for commands):\n--> ");
-            fgets(input, sizeof(input), stdin);
+            gamePlaySystem(memory_board, board, black_team, white_team, Bdead, Wdead, &error, &decision, &isUndo, &isRedo, &team, input, sizeof(input), &s_row, &s_col, &d_row, &d_col, &sel_row, &sel_col, &dest_row, &dest_col);
+            if(error != 0) continue;
+            if(decision != 0) continue;
+            if(isUndo) {isUndo = 0; continue;}
+            if(isRedo) {isRedo = 0; continue;}
 
-            //Cleaning Buffer
-            cleaning_buffer(input);
-
-            //Make the letter UpperCase
-            input[0] = toupper(input[0]);
-            input[2] = toupper(input[2]);;
-            
-            //Declare Co-ordination
-                //For scaning:
-                    char s_col, d_col;
-                    int s_row, d_row;
-                //Real Co-ordination:
-                    int sel_col, sel_row, dest_row, dest_col;
-            
-            
-            // check validity of input
-            if(sscanf(input, "%c %d %c %d", &s_col, &s_row, &d_col, &d_row) == 4) {
-                
-                sel_col = s_col - 'A';
-                dest_col = d_col - 'A';
-                sel_row = s_row - 1;
-                dest_row = d_row - 1;
-
-            }
-            // If it is not a game input
-            else {
-
-                input[1] = toupper(input[1]);
-                input[3] = toupper(input[3]);
-
-                // Check if it is a saving input
-                if(strcmp(input, "SAVE\n") == 0) {
-                    decision = 1; 
-                    continue;
-                }
-                // UNDO
-                else if(strcmp(input, "UNDO\n") == 0) {
-
-                    undo_move(memory_board, board, &error, Wdead, Bdead, 0);
-                    if(error == 0) {team = 1;}
-                    continue;
-
-                }
-                // REDO
-                else if(strcmp(input, "REDO\n") == 0) {
-
-                    redo_move(memory_board, board, &error, Wdead, Bdead);
-                    if(error == 0) {team = 1;}
-                    continue;
-
-                }
-                // QUIT from the game
-                else if(strcmp(input, "QUIT\n") == 0) {
-
-                    dealloction(board, memory_board);
-                    wprintf(L"Exiting...\n");
-                    exit(0);
-
-                }
-                // Else this is an error
-                else {
-                    error = 1;
-                    continue;
-                }
-            }
-
-            
-            //Check if its in the board
-            if((sel_col < 0 || sel_col > 7) || (dest_col < 0 || dest_col > 7) || (sel_row < 0 || sel_row > 7) || (dest_row < 0 || dest_row > 7)) {
-                error = 1;
-                continue;
-            }
-
-            //Check for empty place
-            if(board[sel_row][sel_col] == L'□' || board[sel_row][sel_col] == L'■') {
-                error = 2;
-                continue;
-            }
 
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board);
 
-            if(error != 0) {
+            // Handle some erros related to the movement
+            if(error != 0 && error != 9) {
                 if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, Wdead, Bdead, 1);}
                 continue;
+            }
+            else if (error == 9) {
+                save_move(memory_board, board, Wdead, Bdead);
+                max_slot = saveSlot;
+                max_slot--;
+                undo_move(memory_board, board, &error, Wdead, Bdead, 1);
             }
 
             //switch the team
             team = 1;
 
         }
-
+        // save the game
+        // here we will have dublicate save because there is one in movement if it canMove
         save_move(memory_board, board, Wdead, Bdead);
+        // update max slot
         max_slot = saveSlot;
+        // remove one from the max slot to remove the dublicate
+        max_slot--;
+        // undo movement and '1' mean update the slot to be the max slot
+        undo_move(memory_board, board, &error, Wdead, Bdead, 1);
 
     }
 }
