@@ -612,12 +612,14 @@ void movement(int srcRow, int srcCol, int destRow, int destCol, wchar_t** board,
             knight(srcRow, srcCol, moveRow, moveCol, board, oppteam, oppdead, error);
             break;
         case L'♟':// White Pawn
-            pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
-            if(destRow==7)pormotion(player,error,board,destCol);
+            if(pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player)) {
+                if(destRow==7)pormotion(player,error,board,destCol);
+            }
             break;
         case L'♙':// Black Pawn
-            pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player);
-            if(destRow==0)pormotion(player,error,board,destCol);
+            if(pawn(srcRow, srcCol, destRow, destCol, moveRow, moveCol, board, oppteam, oppdead, error, player)) {
+                if(destRow==0)pormotion(player,error,board,destCol);
+            }
             break;
     }
     wchar_t* myteam=(player==1)?Wteam:Bteam;//to use on winning conditions
