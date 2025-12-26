@@ -94,20 +94,16 @@ void save_board(wchar_t **board) {
     FILE *saveBoardFile = fopen("./bin/save.txt", "w");
     FILE *saveDataFile = fopen("./bin/saveData.txt", "w");
 
-    char data[18];
+    char data[14];
 
     data[0] = team + '0';
-    data[1] = castle1 + '0';
-    data[2] = castle2 + '0';
-    data[3] = castle3 + '0';
-    data[4] = castle4 + '0';
-    data[5] = pessant + '0';
+    data[1] = pessant + '0';
 
     for(int i = 0; i < 6; i++)
-        data[i+6] = Wdead[i] + '0';
+        data[i+2] = Wdead[i] + '0';
 
     for(int i = 0; i < 6; i++)
-        data[i+12] = Bdead[i] + '0';
+        data[i+8] = Bdead[i] + '0';
 
     for(int i = 0; i < 8; i++) {
 
@@ -116,8 +112,7 @@ void save_board(wchar_t **board) {
 
     }
 
-    fwrite(data, sizeof(char), 18, saveDataFile);
-
+    fwrite(data, sizeof(char), 14, saveDataFile);
     // close the file
     fclose(saveBoardFile);
     fclose(saveDataFile);
@@ -131,7 +126,7 @@ int load_board(wchar_t **board) {
     FILE *saveBoardFile = fopen("./bin/save.txt", "r");
     FILE *saveDataFile = fopen("./bin/saveData.txt", "r");
 
-    char data[18];
+    char data[14];
 
     // if there is no file
     if(saveBoardFile == NULL) {
@@ -146,20 +141,16 @@ int load_board(wchar_t **board) {
 
     }
 
-    fread(data, sizeof(char), 18, saveDataFile);
+    fread(data, sizeof(char), 14, saveDataFile);
 
     team = data[0] - '0';
-    castle1 = data[1] - '0';
-    castle2 = data[2] - '0';
-    castle3 = data[3] - '0';
-    castle4 = data[4] - '0';
-    pessant = data[5] - '0';
+    pessant = data[1] - '0';
 
     for(int i = 0; i < 6; i++)
-        Wdead[i] = data[i+6] - '0'; // 6 7 8 9 10 11
+        Wdead[i] = data[i+2] - '0';
 
     for(int i = 0; i < 6; i++)
-        Bdead[i] = data[i+12] - '0';
+        Bdead[i] = data[i+8] - '0';
 
     // close the file
     fclose(saveBoardFile);
@@ -222,11 +213,7 @@ int save_move(wchar_t*** memory_board, wchar_t** board, int* Wdead, int* Bdead) 
         for(int c = 0; c < 6; c++)
             memory_board[saveSlot][r][c] = Bdead[c];
 
-    memory_board[saveSlot][10][0] = castle1;
-    memory_board[saveSlot][10][1] = castle2;
-    memory_board[saveSlot][10][2] = castle3;
-    memory_board[saveSlot][10][3] = castle4;
-    memory_board[saveSlot][10][4] = pessant;
+    memory_board[saveSlot][10][0] = pessant;
 
 }
 
@@ -247,11 +234,7 @@ void undo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* Wdead,
         for(int c = 0; c < 6; c++)
             Bdead[c] = memory_board[saveSlot][r][c];
     
-    castle1 = memory_board[saveSlot][10][0];
-    castle2 = memory_board[saveSlot][10][1];
-    castle3 = memory_board[saveSlot][10][2];
-    castle4 = memory_board[saveSlot][10][3];
-    pessant = memory_board[saveSlot][10][4];
+    pessant = memory_board[saveSlot][10][0];
 
     if(update == 1) saveSlot = max_slot;
 
@@ -280,11 +263,7 @@ void redo_move(wchar_t*** memory_board, wchar_t** board, int* error, int* Wdead,
         for(int c = 0; c < 6; c++)
             Bdead[c] = memory_board[saveSlot][r][c];
     
-    castle1 = memory_board[saveSlot][10][0];
-    castle2 = memory_board[saveSlot][10][1];
-    castle3 = memory_board[saveSlot][10][2];
-    castle4 = memory_board[saveSlot][10][3];
-    pessant = memory_board[saveSlot][10][4];
+    pessant = memory_board[saveSlot][10][0];
 
 }
 
@@ -451,7 +430,7 @@ void start(wchar_t **board, wchar_t*** memory_board) {
     int lenght;
     char input[6];//4 inputs + \n +\0
     int isUndo = 0;
-    int isRedo = 0;
+    int isRedo = 0;    
 
     //we made this colors to be understandable as the white seams white in vscode darkmode
     wchar_t white_team[6]={L'♚', L'♛', L'♜', L'♝', L'♞', L'♟'};
@@ -499,6 +478,11 @@ void start(wchar_t **board, wchar_t*** memory_board) {
             // Handle some erros related to the movement
             if(error != 0 && error != 9) {
                 if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, Wdead, Bdead, 1);}
+                if(error == 5) {
+                    max_slot = saveSlot;
+                    max_slot--;
+                    undo_move(memory_board, board, &error, Wdead, Bdead, 1);
+                }
                 continue;
             }
             else if (error == 9) {
@@ -533,7 +517,6 @@ void start(wchar_t **board, wchar_t*** memory_board) {
             if(isUndo) {isUndo = 0; continue;}
             if(isRedo) {isRedo = 0; continue;}
 
-
             //Move the piece
             movement(sel_row, sel_col, dest_row, dest_col, board, team,
                      &error, white_team, black_team, Wdead, Bdead, memory_board);
@@ -541,6 +524,11 @@ void start(wchar_t **board, wchar_t*** memory_board) {
             // Handle some erros related to the movement
             if(error != 0 && error != 9) {
                 if(error==6){save_move(memory_board, board, Wdead, Bdead);max_slot = saveSlot;max_slot--;undo_move(memory_board, board, &error, Wdead, Bdead, 1);}
+                if(error == 5) {
+                    max_slot = saveSlot;
+                    max_slot--;
+                    undo_move(memory_board, board, &error, Wdead, Bdead, 1);
+                }
                 continue;
             }
             else if (error == 9) {
@@ -572,6 +560,7 @@ void main_menu(wchar_t **board, wchar_t *** memoryboard) {
 
     char os_input[10];
     int saving_error = 0;
+    int teamDecision;
 
     while(1) {
 
@@ -592,6 +581,16 @@ void main_menu(wchar_t **board, wchar_t *** memoryboard) {
 
         // If it is start then break and go to the main, then start.
         if(strcmp(os_input, "START\n") == 0) {
+            // Choose who start
+            while (1)
+            {
+                wprintf(L"Enter:\n1 to make the white start.\n0 to make the black start.\n--> ");
+                fgets(os_input, sizeof(os_input), stdin);
+                if(sscanf(os_input, "%d", &teamDecision) == 1) {
+                    if(teamDecision == 1 || teamDecision == 0) {team = teamDecision; teamDecision = 0; break;}
+                    else continue;
+                }
+            }
             break;
         }
         // If it is load.
