@@ -81,7 +81,7 @@ void cleaning_buffer(char* string) {
     //If there is no end of line (that's mean there is a buffer)
     if(strchr(string, '\n') == NULL) {
         int ch;
-        // eof --> to make the while exit when the character is new line or end of input
+        // eof --> to make the while exit when the character is new line and it reach the end of input
         while((ch = getchar()) != '\n' && ch != EOF);
     }
 
@@ -168,19 +168,19 @@ wchar_t*** create_board_memory() {
 
     if(board_memory == NULL) {
         printf("ERROR: There is no free to space create board memory!");
-        exit(0);
+        exit(1);
     }
     for(int i = 0; i < 500; i++) {
         board_memory[i] = (wchar_t **) calloc(11, sizeof(wchar_t*));
         if(board_memory[i] == NULL) {
             printf("ERROR: There is no free to space create board memory!");
-            exit(0);
+            exit(1);
         }
         for(int j = 0; j < 8; j++) {
             board_memory[i][j] = (wchar_t *) calloc(8, sizeof(wchar_t));
             if(board_memory[i][j] == NULL) {
                 printf("ERROR: There is no free space to create board memory!");
-                exit(0);
+                exit(1);
             }
         }
 
@@ -188,7 +188,7 @@ wchar_t*** create_board_memory() {
             board_memory[i][j] = (wchar_t *) calloc(6, sizeof(wchar_t));
             if(board_memory[i][j] == NULL) {
                 printf("ERROR: There is no free space to create board memory!");
-                exit(0);
+                exit(1);
             }
         }
     }
@@ -310,7 +310,6 @@ int lenght_chec(char* string) {
     // replace last character by \0
     if(lenght > 0 && string[lenght-1] == '\n') {
         string[lenght-1] ='\0';
-        lenght--;
     }
     // if it is not 4 then return 1 to the error
     if(strlen(string) > 4) {
@@ -486,6 +485,7 @@ void start(wchar_t **board, wchar_t*** memory_board) {
                 continue;
             }
             else if (error == 9) {
+
                 save_move(memory_board, board, Wdead, Bdead);
                 max_slot = saveSlot;
                 max_slot--;
@@ -576,6 +576,9 @@ void main_menu(wchar_t **board, wchar_t *** memoryboard) {
         saving_error = error_check(saving_error);
 
         fgets(os_input, sizeof(os_input), stdin);
+        
+        // clean the buffer
+        cleaning_buffer(os_input);
 
         to_upper(os_input);
 
@@ -612,7 +615,6 @@ void main_menu(wchar_t **board, wchar_t *** memoryboard) {
         // If it is invalid input.
         else {
             saving_error = 1;
-            cleaning_buffer(os_input);
         }
 
     }
