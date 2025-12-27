@@ -121,14 +121,14 @@ wchar_t **create_board() {
 
     if(board == NULL) {
         printf("ERROR: There is no free space for the board!");
-        exit(0);
+        exit(1);
     }
 
     for(int i = 0; i < 8; i++) {
         board[i] = (wchar_t *) calloc(8, sizeof(wchar_t));
         if(board[i] == NULL) {
             printf("ERROR: There is no free space for the board!");
-            exit(0);
+            exit(1);
         }
     }
 
